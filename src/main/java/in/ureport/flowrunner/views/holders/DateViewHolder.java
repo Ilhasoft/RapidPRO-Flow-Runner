@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import in.ureport.flowrunner.managers.FlowRunnerManager;
+import in.ureport.flowrunner.models.FlowDefinition;
 import in.ureport.flowrunner.models.FlowRule;
 import in.ureport.flowrunner.models.RulesetResponse;
 
@@ -17,8 +18,8 @@ import in.ureport.flowrunner.models.RulesetResponse;
  */
 public class DateViewHolder extends OpenFieldViewHolder implements DatePickerDialog.OnDateSetListener {
 
-    public DateViewHolder(View itemView) {
-        super(itemView);
+    public DateViewHolder(View itemView, FlowDefinition flowDefinition) {
+        super(itemView, flowDefinition);
     }
 
     @Override

@@ -54,20 +54,20 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if(viewType == TYPE_RESPOND) {
             return new RespondViewHolder(inflater.inflate(R.layout.item_respond_flow_question, parent, false));
         } else if(viewType == TYPE_HIDE) {
-            return new BaseViewHolder(inflater.inflate(R.layout.item_hide, parent, false));
+            return new BaseViewHolder(inflater.inflate(R.layout.item_hide, parent, false), flowDefinition);
         } else {
             switch(Type.values()[viewType]) {
                 case Choice:
-                    ChoiceViewHolder choiceViewHolder = new ChoiceViewHolder(inflater.inflate(R.layout.item_choice, parent, false));
+                    ChoiceViewHolder choiceViewHolder = new ChoiceViewHolder(inflater.inflate(R.layout.item_choice, parent, false), flowDefinition);
                     choiceViewHolder.setOnChoiceSelectedListener(this);
                     return choiceViewHolder;
                 case Date:
-                    DateViewHolder dateViewHolder = new DateViewHolder(inflater.inflate(R.layout.item_open, parent, false));
+                    DateViewHolder dateViewHolder = new DateViewHolder(inflater.inflate(R.layout.item_open, parent, false), flowDefinition);
                     dateViewHolder.setOnResponseChangedListener(onResponseChangedListener);
                     return dateViewHolder;
                 default:
                 case OpenField:
-                    OpenFieldViewHolder openFieldViewHolder = new OpenFieldViewHolder(inflater.inflate(R.layout.item_open, parent, false));
+                    OpenFieldViewHolder openFieldViewHolder = new OpenFieldViewHolder(inflater.inflate(R.layout.item_open, parent, false), flowDefinition);
                     openFieldViewHolder.setOnResponseChangedListener(onResponseChangedListener);
                     return openFieldViewHolder;
             }

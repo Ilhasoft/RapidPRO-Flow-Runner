@@ -1,9 +1,11 @@
 package in.ureport.flowrunner.views.holders;
 
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.RadioButton;
 
 import in.ureport.flowrunner.R;
+import in.ureport.flowrunner.models.FlowDefinition;
 import in.ureport.flowrunner.models.FlowRule;
 import in.ureport.flowrunner.models.RulesetResponse;
 
@@ -18,8 +20,8 @@ public class ChoiceViewHolder extends BaseViewHolder {
 
     private ChoiceViewHolder.OnChoiceSelectedListener onChoiceSelectedListener;
 
-    public ChoiceViewHolder(View itemView) {
-        super(itemView);
+    public ChoiceViewHolder(View itemView, FlowDefinition flowDefinition) {
+        super(itemView, flowDefinition);
 
         check = (RadioButton) itemView.findViewById(R.id.check);
         check.setOnClickListener(onCheckClickListener);
@@ -29,17 +31,27 @@ public class ChoiceViewHolder extends BaseViewHolder {
         super.bindView(rule, currentResponse);
 
         check.setChecked(isCurrentRule(currentResponse));
-        check.setText(rule.getCategory().get("eng"));
+        check.setText(rule.getCategory().get(flowDefinition.getBaseLanguage()));
     }
 
     private View.OnClickListener onCheckClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             if(onChoiceSelectedListener != null) {
-                onChoiceSelectedListener.onChoiceSelected(rule, rule.getTest().getBase());
+                onChoiceSelectedListener.onChoiceSelected(rule, getResponseFromRule());
             }
         }
     };
+
+    @Nullable
+    private String getResponseFromRule() {
+        String response = rule.getTest().getBase();
+        if(response == null && rule.getTest().getTest() != null
+        && rule.getTest().getTest().values().size() > 0) {
+            response = rule.getTest().getTest().get(flowDefinition.getBaseLanguage());
+        }
+        return response;
+    }
 
     public void setOnChoiceSelectedListener(ChoiceViewHolder.OnChoiceSelectedListener onChoiceSelectedListener) {
         this.onChoiceSelectedListener = onChoiceSelectedListener;

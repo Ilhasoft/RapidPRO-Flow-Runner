@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import in.ureport.flowrunner.R;
 import in.ureport.flowrunner.managers.FlowRunnerManager;
+import in.ureport.flowrunner.models.FlowDefinition;
 import in.ureport.flowrunner.models.FlowRule;
 import in.ureport.flowrunner.models.RulesetResponse;
 import in.ureport.flowrunner.models.Type;
@@ -26,8 +27,8 @@ public class OpenFieldViewHolder extends BaseViewHolder {
 
     private String lastString;
 
-    public OpenFieldViewHolder(View itemView) {
-        super(itemView);
+    public OpenFieldViewHolder(View itemView, FlowDefinition flowDefinition) {
+        super(itemView, flowDefinition);
 
         openField = (EditText) itemView.findViewById(R.id.openField);
         openField.addTextChangedListener(onTextChangedListener);

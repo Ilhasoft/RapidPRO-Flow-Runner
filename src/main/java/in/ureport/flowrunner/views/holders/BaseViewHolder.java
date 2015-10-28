@@ -3,10 +3,8 @@ package in.ureport.flowrunner.views.holders;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import in.ureport.flowrunner.managers.FlowRunnerManager;
 import in.ureport.flowrunner.models.FlowDefinition;
 import in.ureport.flowrunner.models.FlowRule;
-import in.ureport.flowrunner.models.FlowRuleset;
 import in.ureport.flowrunner.models.RulesetResponse;
 
 /**
@@ -15,9 +13,11 @@ import in.ureport.flowrunner.models.RulesetResponse;
 public class BaseViewHolder extends RecyclerView.ViewHolder {
 
     protected FlowRule rule;
+    protected FlowDefinition flowDefinition;
 
-    public BaseViewHolder(View itemView) {
+    public BaseViewHolder(View itemView, FlowDefinition flowDefinition) {
         super(itemView);
+        this.flowDefinition = flowDefinition;
     }
 
     public void bindView(FlowRule rule, RulesetResponse response) {
