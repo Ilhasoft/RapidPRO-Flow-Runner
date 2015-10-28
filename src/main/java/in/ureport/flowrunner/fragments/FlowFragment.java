@@ -78,7 +78,7 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
     private void setupFlowStepSet() {
         flowStepSet = new FlowStepSet();
         flowStepSet.setFlow(flowDefinition.getMetadata().getUuid());
-        flowStepSet.setVersion(flowDefinition.getVersion());
+        flowStepSet.setRevision(flowDefinition.getMetadata().getRevision());
         flowStepSet.setStarted(new Date());
         flowStepSet.setCompleted(true);
         flowStepSet.setSteps(new ArrayList<FlowStep>());

@@ -19,7 +19,7 @@ public class FlowStepSet implements Parcelable {
 
     private Date started;
 
-    private Integer version;
+    private Integer revision;
 
     private List<FlowStep> steps;
 
@@ -55,12 +55,12 @@ public class FlowStepSet implements Parcelable {
         this.started = started;
     }
 
-    public Integer getVersion() {
-        return version;
+    public Integer getRevision() {
+        return revision;
     }
 
-    public void setVersion(Integer version) {
-        this.version = version;
+    public void setRevision(Integer revision) {
+        this.revision = revision;
     }
 
     public List<FlowStep> getSteps() {
@@ -82,7 +82,7 @@ public class FlowStepSet implements Parcelable {
         dest.writeString(this.contact);
         dest.writeValue(this.completed);
         dest.writeLong(started != null ? started.getTime() : -1);
-        dest.writeValue(this.version);
+        dest.writeValue(this.revision);
         dest.writeTypedList(steps);
     }
 
@@ -95,7 +95,7 @@ public class FlowStepSet implements Parcelable {
         this.completed = (Boolean) in.readValue(Boolean.class.getClassLoader());
         long tmpStarted = in.readLong();
         this.started = tmpStarted == -1 ? null : new Date(tmpStarted);
-        this.version = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.revision = (Integer) in.readValue(Integer.class.getClassLoader());
         this.steps = in.createTypedArrayList(FlowStep.CREATOR);
     }
 
