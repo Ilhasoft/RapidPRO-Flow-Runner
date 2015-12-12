@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +16,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import br.com.ilhasoft.support.utils.KeyboardHandler;
 import in.ureport.flowrunner.R;
+import in.ureport.flowrunner.loaders.LocaleLoader;
 import in.ureport.flowrunner.managers.FlowRunnerManager;
 import in.ureport.flowrunner.models.FlowAction;
 import in.ureport.flowrunner.models.FlowActionSet;
@@ -30,9 +36,13 @@ import in.ureport.flowrunner.views.adapters.QuestionAdapter;
 /**
  * Created by johncordeiro on 14/10/15.
  */
-public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestionAnsweredListener {
+public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestionAnsweredListener
+        , LoaderManager.LoaderCallbacks<Locale []> {
 
-    public static final String EXTRA_FLOW_DEFINITION = "flowDefinition";
+    private static final String EXTRA_FLOW_DEFINITION = "flowDefinition";
+    private static final String EXTRA_LANGUAGE = "language";
+
+    private static final String TAG = "FlowFragment";
 
     private KeyboardHandler keyboardHandler;
     private Handler handler;
@@ -41,10 +51,15 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
     private FlowStepSet flowStepSet;
 
     private FlowListener flowListener;
+    private Locale[] availableLocales;
 
-    public static FlowFragment newInstance(FlowDefinition flowDefinition) {
+    private String preferredLanguage;
+
+    public static FlowFragment newInstance(FlowDefinition flowDefinition, String language) {
         Bundle args = new Bundle();
         args.putParcelable(EXTRA_FLOW_DEFINITION, flowDefinition);
+        args.putString(EXTRA_LANGUAGE, language);
+
         FlowFragment fragment = new FlowFragment();
         fragment.setArguments(args);
         return fragment;
@@ -60,10 +75,28 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        flowDefinition = getArguments().getParcelable(EXTRA_FLOW_DEFINITION);
+        setupData();
         setupObjects();
         setupFlowStepSet();
-        moveToQuestion(getFlowActionSetByUuid(flowDefinition.getEntry()));
+        loadAllLanguages();
+        setupInitialData();
+    }
+
+    private void setupInitialData() {
+        if(FlowRunnerManager.isFlowCompleted(flowDefinition)) {
+            moveToQuestion(null);
+        } else {
+            moveToQuestion(getFlowActionSetByUuid(flowDefinition.getEntry()));
+        }
+    }
+
+    private void setupData() {
+        flowDefinition = getArguments().getParcelable(EXTRA_FLOW_DEFINITION);
+        preferredLanguage = getArguments().getString(EXTRA_LANGUAGE);
+    }
+
+    private void loadAllLanguages() {
+        getLoaderManager().initLoader(0, null, this).forceLoad();
     }
 
     @Override
@@ -91,6 +124,7 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
 
     @Override
     public void onQuestionAnswered(FlowRuleset ruleSet, RulesetResponse response) {
+        flowListener.onFlowResponse(ruleSet);
         keyboardHandler.changeKeyboardVisibility(getActivity(), false);
 
         FlowActionSet currentActionSet = getFlowActionSetByDestination(ruleSet.getUuid());
@@ -98,11 +132,15 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
 
         FlowActionSet nextActionSet = getFlowActionSetByUuid(response.getRule().getDestination());
         if(FlowRunnerManager.isLastActionSet(nextActionSet) && flowListener != null) {
-            addFlowStep(nextActionSet, response);
             flowListener.onFlowFinished(flowStepSet);
         }
 
         moveToQuestionDelayed(nextActionSet);
+    }
+
+    @Override
+    public void onQuestionFinished() {
+        moveToQuestionDelayed(null);
     }
 
     private void addFlowStep(FlowActionSet flowActionSet, RulesetResponse response) {
@@ -145,12 +183,20 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
     }
 
     private void moveToQuestion(FlowActionSet flowActionSet) {
-        QuestionFragment questionFragment = QuestionFragment.newInstance(flowDefinition
-                , flowActionSet, getRulesetForAction(flowActionSet));
-        questionFragment.setOnQuestionAnsweredListener(this);
+        Fragment nextStepFragment;
+        if(flowActionSet != null) {
+            nextStepFragment = QuestionFragment.newInstance(flowDefinition
+                    , flowActionSet, getRulesetForAction(flowActionSet), preferredLanguage);
+            ((QuestionFragment)nextStepFragment).setOnQuestionAnsweredListener(this);
+            ((QuestionFragment)nextStepFragment).setFlowFunctionsListener(flowFunctionsListener);
+            ((QuestionFragment)nextStepFragment).setFlowListener(onFlowListener);
+        } else {
+            nextStepFragment = new InfoFragment();
+        }
+
         getChildFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-                .replace(R.id.content, questionFragment)
+                .replace(R.id.content, nextStepFragment)
                 .commit();
     }
 
@@ -189,7 +235,60 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
         this.flowListener = flowListener;
     }
 
+    @Override
+    public Loader<Locale[]> onCreateLoader(int id, Bundle args) {
+        return new LocaleLoader(getContext());
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Locale[]> loader, Locale[] data) {
+        this.availableLocales = data;
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Locale[]> loader) {}
+
+    private FlowFunctionsListener flowFunctionsListener = new FlowFunctionsListener() {
+        @Override
+        public List<Locale> getLocaleForLanguages(Set<String> languages) {
+            Map<String, Locale> localeForLanguages = new HashMap<>();
+            if(availableLocales != null && languages != null) {
+                for (Locale locale : availableLocales) {
+                    if(locale.getISO3Language() != null && languages.contains(locale.getISO3Language())) {
+                        localeForLanguages.put(locale.getISO3Language(), locale);
+                    }
+                    if(localeForLanguages.size() == languages.size()) break;
+                }
+            }
+            return new ArrayList<>(localeForLanguages.values());
+        }
+    };
+
+    private FlowListener onFlowListener = new FlowListener() {
+        @Override
+        public void onFlowLanguageChanged(String iso3Language) {
+            FlowFragment.this.flowListener.onFlowLanguageChanged(iso3Language);
+            preferredLanguage = iso3Language;
+        }
+
+        @Override
+        public void onFlowResponse(FlowRuleset ruleset) {
+            FlowFragment.this.flowListener.onFlowResponse(ruleset);
+        }
+
+        @Override
+        public void onFlowFinished(FlowStepSet stepSet) {
+            FlowFragment.this.flowListener.onFlowFinished(stepSet);
+        }
+    };
+
     public interface FlowListener {
+        void onFlowLanguageChanged(String iso3Language);
+        void onFlowResponse(FlowRuleset ruleset);
         void onFlowFinished(FlowStepSet stepSet);
+    }
+
+    interface FlowFunctionsListener {
+        List<Locale> getLocaleForLanguages(Set<String> languages);
     }
 }

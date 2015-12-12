@@ -13,6 +13,8 @@ import java.util.List;
  */
 public class FlowDefinition implements Parcelable {
 
+    private transient Contact contact;
+
     @SerializedName("base_language")
     private String baseLanguage;
 
@@ -33,6 +35,16 @@ public class FlowDefinition implements Parcelable {
     private List<FlowRuleset> ruleSets;
 
     private FlowMetadata metadata;
+
+    private transient FlowRun flowRun;
+
+    public Contact getContact() {
+        return contact;
+    }
+
+    public void setContact(Contact contact) {
+        this.contact = contact;
+    }
 
     public String getBaseLanguage() {
         return baseLanguage;
@@ -98,6 +110,14 @@ public class FlowDefinition implements Parcelable {
         this.metadata = metadata;
     }
 
+    public FlowRun getFlowRun() {
+        return flowRun;
+    }
+
+    public void setFlowRun(FlowRun flowRun) {
+        this.flowRun = flowRun;
+    }
+
     @Override
     public String toString() {
         return "FlowDefinition{" +
@@ -116,6 +136,7 @@ public class FlowDefinition implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(this.contact, 0);
         dest.writeString(this.baseLanguage);
         dest.writeTypedList(actionSets);
         dest.writeLong(lastSaved != null ? lastSaved.getTime() : -1);
@@ -124,12 +145,14 @@ public class FlowDefinition implements Parcelable {
         dest.writeString(this.entry);
         dest.writeTypedList(ruleSets);
         dest.writeParcelable(this.metadata, 0);
+        dest.writeParcelable(this.flowRun, 0);
     }
 
     public FlowDefinition() {
     }
 
     protected FlowDefinition(Parcel in) {
+        this.contact = in.readParcelable(Contact.class.getClassLoader());
         this.baseLanguage = in.readString();
         this.actionSets = in.createTypedArrayList(FlowActionSet.CREATOR);
         long tmpLastSaved = in.readLong();
@@ -139,6 +162,7 @@ public class FlowDefinition implements Parcelable {
         this.entry = in.readString();
         this.ruleSets = in.createTypedArrayList(FlowRuleset.CREATOR);
         this.metadata = in.readParcelable(FlowMetadata.class.getClassLoader());
+        this.flowRun = in.readParcelable(FlowRun.class.getClassLoader());
     }
 
     public static final Creator<FlowDefinition> CREATOR = new Creator<FlowDefinition>() {

@@ -4,6 +4,8 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.RadioButton;
 
+import java.util.Map;
+
 import in.ureport.flowrunner.R;
 import in.ureport.flowrunner.models.FlowDefinition;
 import in.ureport.flowrunner.models.FlowRule;
@@ -27,11 +29,19 @@ public class ChoiceViewHolder extends BaseViewHolder {
         check.setOnClickListener(onCheckClickListener);
     }
 
-    public void bindView(FlowRule rule, RulesetResponse currentResponse) {
-        super.bindView(rule, currentResponse);
+    public void bindView(FlowRule rule, String language, RulesetResponse currentResponse) {
+        super.bindView(rule, language, currentResponse);
 
         check.setChecked(isCurrentRule(currentResponse));
-        check.setText(rule.getCategory().get(flowDefinition.getBaseLanguage()));
+        check.setText(getLanguageFromMap(rule.getCategory()));
+    }
+
+    private String getLanguageFromMap(Map<String, String> languageMap) {
+        if(languageMap.containsKey(language)) {
+            return languageMap.get(language);
+        } else {
+            return languageMap.get(flowDefinition.getBaseLanguage());
+        }
     }
 
     private View.OnClickListener onCheckClickListener = new View.OnClickListener() {
@@ -48,7 +58,7 @@ public class ChoiceViewHolder extends BaseViewHolder {
         String response = rule.getTest().getBase();
         if(response == null && rule.getTest().getTest() != null
         && rule.getTest().getTest().values().size() > 0) {
-            response = rule.getTest().getTest().get(flowDefinition.getBaseLanguage());
+            response = getLanguageFromMap(rule.getTest().getTest());
         }
         return response;
     }

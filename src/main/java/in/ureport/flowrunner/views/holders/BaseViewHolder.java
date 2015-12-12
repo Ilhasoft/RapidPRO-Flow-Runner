@@ -13,6 +13,7 @@ import in.ureport.flowrunner.models.RulesetResponse;
 public class BaseViewHolder extends RecyclerView.ViewHolder {
 
     protected FlowRule rule;
+    protected String language;
     protected FlowDefinition flowDefinition;
 
     public BaseViewHolder(View itemView, FlowDefinition flowDefinition) {
@@ -20,8 +21,9 @@ public class BaseViewHolder extends RecyclerView.ViewHolder {
         this.flowDefinition = flowDefinition;
     }
 
-    public void bindView(FlowRule rule, RulesetResponse response) {
+    public void bindView(FlowRule rule, String language, RulesetResponse response) {
         this.rule = rule;
+        this.language = language;
     }
 
     public boolean isCurrentRule(RulesetResponse response) {

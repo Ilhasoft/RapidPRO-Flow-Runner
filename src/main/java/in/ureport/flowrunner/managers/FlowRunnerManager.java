@@ -43,9 +43,21 @@ public class FlowRunnerManager {
         return ValidationFactory.getInstance(typeValidation).validate(flowDefinition, response);
     }
 
-    public static boolean isFlowActive(FlowRun flowRun) {
-        return flowRun.getExpiredOn() != null
-            || (!flowRun.getCompleted() && (flowRun.getExpiresOn() != null && flowRun.getExpiresOn().after(new Date())));
+    public static boolean isFlowActive(FlowDefinition flowDefinition) {
+        FlowRun flowRun = flowDefinition.getFlowRun();
+        return flowRun != null && (flowRun.getExpiredOn() != null
+                || (!flowRun.getCompleted() && (flowRun.getExpiresOn() != null && flowRun.getExpiresOn().after(new Date()))));
+    }
+
+    public static boolean isFlowExpired(FlowDefinition flowDefinition) {
+        FlowRun flowRun = flowDefinition.getFlowRun();
+        return flowRun != null && (flowRun.getExpiredOn() != null
+                || (flowRun.getExpiresOn() != null && flowRun.getExpiresOn().before(new Date())));
+    }
+
+    public static boolean isFlowCompleted(FlowDefinition flowDefinition) {
+        FlowRun flowRun = flowDefinition.getFlowRun();
+        return flowRun != null && flowRun.getCompleted();
     }
 
     public static boolean isLastActionSet(FlowActionSet flowActionSet) {

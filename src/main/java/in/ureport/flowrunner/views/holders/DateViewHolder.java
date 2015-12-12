@@ -23,8 +23,8 @@ public class DateViewHolder extends OpenFieldViewHolder implements DatePickerDia
     }
 
     @Override
-    public void bindView(FlowRule rule, RulesetResponse currentResponse) {
-        super.bindView(rule, currentResponse);
+    public void bindView(FlowRule rule, String language, RulesetResponse currentResponse) {
+        super.bindView(rule, language, currentResponse);
         openField.setFocusable(false);
         openField.setOnClickListener(onDateSetClickListener);
 

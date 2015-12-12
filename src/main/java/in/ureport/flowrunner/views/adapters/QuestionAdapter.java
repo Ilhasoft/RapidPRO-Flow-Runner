@@ -38,12 +38,14 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private FlowDefinition flowDefinition;
     private FlowRuleset ruleSet;
+    private String preferredLanguage;
 
     private OnQuestionAnsweredListener onQuestionAnsweredListener;
 
-    public QuestionAdapter(FlowDefinition flowDefinition, FlowRuleset ruleSet) {
+    public QuestionAdapter(FlowDefinition flowDefinition, FlowRuleset ruleSet, String preferredLanguage) {
         this.flowDefinition = flowDefinition;
         this.ruleSet = ruleSet;
+        this.preferredLanguage = preferredLanguage;
         setHasStableIds(true);
     }
 
@@ -88,7 +90,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 break;
             default:
                 FlowRule rule = ruleSet.getRules().get(position);
-                ((BaseViewHolder)holder).bindView(rule, response);
+                ((BaseViewHolder)holder).bindView(rule, preferredLanguage, response);
         }
     }
 
@@ -126,6 +128,11 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return ruleSet != null ? ruleSet.getRules().size() + 1 : 1;
     }
 
+    public void setPreferredLanguage(String preferredLanguage) {
+        this.preferredLanguage = preferredLanguage;
+        notifyDataSetChanged();
+    }
+
     public void setOnQuestionAnsweredListener(OnQuestionAnsweredListener onQuestionAnsweredListener) {
         this.onQuestionAnsweredListener = onQuestionAnsweredListener;
     }
@@ -157,18 +164,13 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         private void bindView() {
-            respond.setVisibility(hasDestination() ? View.VISIBLE : View.GONE);
-        }
-
-        private boolean hasDestination() {
-            return ruleSet != null && !ruleSet.getRules().isEmpty()
-                && ruleSet.getRules().get(getLayoutPosition()-1).getDestination() != null;
+            respond.setText(hasDestination(getLayoutPosition()) ? R.string.label_next_question : R.string.label_finish_poll);
         }
 
         private View.OnClickListener onRespondClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finishQuestion();
+                finishQuestion(hasDestination(getLayoutPosition()));
             }
         };
     }
@@ -181,15 +183,19 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         @Override
-        public void onResponseFinished() {
-            finishQuestion();
+        public void onResponseFinished(FlowRule rule) {
+            finishQuestion(hasDestination(rule));
         }
     };
 
-    private void finishQuestion() {
-        if(response == null || response.getResponse() == null) {
-            displayAlert(R.string.error_choose_answer);
-        } else if(onQuestionAnsweredListener != null) {
+    private void finishQuestion(boolean hasDestination) {
+        if((response == null || response.getResponse() == null)) {
+            if(hasDestination) {
+                displayAlert(R.string.error_choose_answer);
+            } else {
+                onQuestionAnsweredListener.onQuestionFinished();
+            }
+        } else {
             validateResponseAndSend();
         }
     }
@@ -219,7 +225,17 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
+    private boolean hasDestination(int rulePosition) {
+        return ruleSet != null && !ruleSet.getRules().isEmpty()
+                && ruleSet.getRules().get(rulePosition-1).getDestination() != null;
+    }
+
+    private boolean hasDestination(FlowRule rule) {
+        return rule.getDestination() != null;
+    }
+
     public interface OnQuestionAnsweredListener {
         void onQuestionAnswered(FlowRuleset ruleSet, RulesetResponse response);
+        void onQuestionFinished();
     }
 }

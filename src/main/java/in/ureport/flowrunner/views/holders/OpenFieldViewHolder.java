@@ -36,7 +36,7 @@ public class OpenFieldViewHolder extends BaseViewHolder {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if(actionId == EditorInfo.IME_ACTION_NEXT && onResponseChangedListener != null) {
-                    onResponseChangedListener.onResponseFinished();
+                    onResponseChangedListener.onResponseFinished(rule);
                     return true;
                 }
                 return false;
@@ -44,8 +44,8 @@ public class OpenFieldViewHolder extends BaseViewHolder {
         });
     }
 
-    public void bindView(FlowRule rule, RulesetResponse currentResponse) {
-        super.bindView(rule, currentResponse);
+    public void bindView(FlowRule rule, String language, RulesetResponse currentResponse) {
+        super.bindView(rule, language, currentResponse);
 
         Type type = TypeValidation.getTypeValidationForRule(rule).getType();
         openField.setInputType(FlowRunnerManager.getInputTypeByType(type));
@@ -81,6 +81,6 @@ public class OpenFieldViewHolder extends BaseViewHolder {
 
     public interface OnResponseChangedListener {
         void onResponseChanged(FlowRule rule, String response);
-        void onResponseFinished();
+        void onResponseFinished(FlowRule rule);
     }
 }

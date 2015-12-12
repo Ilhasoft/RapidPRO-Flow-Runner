@@ -1,17 +1,29 @@
 package in.ureport.flowrunner.fragments;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import br.com.ilhasoft.support.manager.WrapLinearLayoutManager;
 import in.ureport.flowrunner.R;
+import in.ureport.flowrunner.managers.TranslateManager;
+import in.ureport.flowrunner.models.CustomLocale;
+import in.ureport.flowrunner.models.FlowAction;
 import in.ureport.flowrunner.models.FlowActionSet;
 import in.ureport.flowrunner.models.FlowDefinition;
 import in.ureport.flowrunner.models.FlowRuleset;
@@ -26,18 +38,28 @@ public class QuestionFragment extends Fragment {
     private static final String EXTRA_RULE_SET = "ruleSet";
     private static final String EXTRA_ACTION_SET = "actionSet";
     private static final String EXTRA_FLOW_DEFINITION = "flowDefinition";
+    private static final String EXTRA_LANGUAGE = "language";
 
     private FlowDefinition flowDefinition;
     private FlowRuleset ruleSet;
     private FlowActionSet actionSet;
 
     private QuestionAdapter.OnQuestionAnsweredListener onQuestionAnsweredListener;
+    private FlowFragment.FlowFunctionsListener flowFunctionsListener;
+    private FlowFragment.FlowListener flowListener;
 
-    public static QuestionFragment newInstance(FlowDefinition flowDefinition, FlowActionSet actionSet, FlowRuleset ruleSet) {
+    private String preferredLanguage;
+    private HashSet<String> flowLanguages;
+
+    private QuestionAdapter questionAdapter;
+    private TextView question;
+
+    public static QuestionFragment newInstance(FlowDefinition flowDefinition, FlowActionSet actionSet, FlowRuleset ruleSet, String language) {
         Bundle args = new Bundle();
         args.putParcelable(EXTRA_ACTION_SET, actionSet);
         args.putParcelable(EXTRA_RULE_SET, ruleSet);
         args.putParcelable(EXTRA_FLOW_DEFINITION, flowDefinition);
+        args.putString(EXTRA_LANGUAGE, language);
 
         QuestionFragment fragment = new QuestionFragment();
         fragment.setArguments(args);
@@ -54,19 +76,34 @@ public class QuestionFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        getObjects();
+        setupData();
+        setupQuestionLanguages();
         setupView(view);
     }
 
-    private void getObjects() {
+    private void setupData() {
         flowDefinition = getArguments().getParcelable(EXTRA_FLOW_DEFINITION);
         actionSet = getArguments().getParcelable(EXTRA_ACTION_SET);
         ruleSet = getArguments().getParcelable(EXTRA_RULE_SET);
+        preferredLanguage = getArguments().getString(EXTRA_LANGUAGE);
+    }
+
+    private void setupQuestionLanguages() {
+        if(preferredLanguage == null)
+            preferredLanguage = flowDefinition.getBaseLanguage();
+
+        flowLanguages = new HashSet<>();
+        if(actionSet != null) {
+            for (FlowAction flowAction : actionSet.getActions()) {
+                Map<String, String> messages = flowAction.getMessage();
+                flowLanguages.addAll(messages.keySet());
+            }
+        }
     }
 
     private void setupView(View view) {
-        TextView question = (TextView) view.findViewById(R.id.question);
-        question.setText(actionSet.getActions().get(0).getMessage().get("eng"));
+        question = (TextView) view.findViewById(R.id.question);
+        updateQuestionForPreferredLanguage(preferredLanguage);
 
         RecyclerView choiceList = (RecyclerView) view.findViewById(R.id.choicesList);
         choiceList.setLayoutManager(new WrapLinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
@@ -75,12 +112,84 @@ public class QuestionFragment extends Fragment {
         spaceItemDecoration.setVerticalSpaceHeight(5);
         choiceList.addItemDecoration(spaceItemDecoration);
 
-        QuestionAdapter questionAdapter = new QuestionAdapter(flowDefinition, ruleSet);
+        questionAdapter = new QuestionAdapter(flowDefinition, ruleSet, preferredLanguage);
         questionAdapter.setOnQuestionAnsweredListener(onQuestionAnsweredListener);
         choiceList.setAdapter(questionAdapter);
+
+        TextView settings = (TextView) view.findViewById(R.id.settings);
+        settings.setVisibility(flowLanguages.size() > 1 ? View.VISIBLE : View.GONE);
+        settings.setOnClickListener(onSettingsClickListener);
+    }
+
+    private void updateQuestionForPreferredLanguage(String preferredLanguage) {
+        Map<String, String> messageMap = actionSet.getActions().get(0).getMessage();
+        String questionText;
+        if (messageMap.containsKey(preferredLanguage)) {
+            questionText = messageMap.get(preferredLanguage);
+        } else {
+            questionText = messageMap.get(flowDefinition.getBaseLanguage());
+        }
+
+        questionText = TranslateManager.translateContactFields(flowDefinition.getContact(), questionText);
+        question.setText(questionText);
+    }
+
+    public void setFlowFunctionsListener(FlowFragment.FlowFunctionsListener flowFunctionsListener) {
+        this.flowFunctionsListener = flowFunctionsListener;
     }
 
     public void setOnQuestionAnsweredListener(QuestionAdapter.OnQuestionAnsweredListener onQuestionAnsweredListener) {
         this.onQuestionAnsweredListener = onQuestionAnsweredListener;
+    }
+
+    public void setFlowListener(FlowFragment.FlowListener flowListener) {
+        this.flowListener = flowListener;
+    }
+
+    private View.OnClickListener onSettingsClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            final CustomLocale[] customLocales = getCustomLocales();
+            final String[] languages = toStringArray(customLocales);
+
+            AlertDialog alertDialog = new AlertDialog.Builder(getContext())
+                    .setTitle(R.string.message_title_languages)
+                    .setItems(languages, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            preferredLanguage = customLocales[which].getIso3Language();
+                            flowListener.onFlowLanguageChanged(preferredLanguage);
+                            updateQuestionForPreferredLanguage(preferredLanguage);
+                            questionAdapter.setPreferredLanguage(preferredLanguage);
+                        }
+                    }).create();
+            alertDialog.show();
+        }
+    };
+
+    @NonNull
+    private String[] toStringArray(CustomLocale[] customLocales) {
+        final String [] languages = new String[customLocales.length];
+        for (int i = 0; i < customLocales.length; i++) {
+            languages[i] = customLocales[i].getDisplayLanguage();
+        }
+        return languages;
+    }
+
+    @NonNull
+    private CustomLocale[] getCustomLocales() {
+        List<Locale> locales = flowFunctionsListener.getLocaleForLanguages(flowLanguages);
+        final CustomLocale [] languageItems = new CustomLocale[locales.size()];
+
+        for (int i = 0; i < locales.size(); i++) {
+            String displayLanguage = locales.get(i).getDisplayLanguage();
+            languageItems[i] = new CustomLocale(locales.get(i).getISO3Language(), upperCaseFirstLetter(displayLanguage));
+        }
+        return languageItems;
+    }
+
+    @NonNull
+    private String upperCaseFirstLetter(String displayLanguage) {
+        return displayLanguage.substring(0, 1).toUpperCase() + displayLanguage.substring(1);
     }
 }
