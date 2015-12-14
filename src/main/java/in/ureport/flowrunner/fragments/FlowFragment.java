@@ -54,6 +54,7 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
     private Locale[] availableLocales;
 
     private String preferredLanguage;
+    private Boolean showLastMessage = true;
 
     public static FlowFragment newInstance(FlowDefinition flowDefinition, String language) {
         Bundle args = new Bundle();
@@ -124,7 +125,9 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
 
     @Override
     public void onQuestionAnswered(FlowRuleset ruleSet, RulesetResponse response) {
-        flowListener.onFlowResponse(ruleSet);
+        if(flowListener != null)
+            flowListener.onFlowResponse(ruleSet);
+
         keyboardHandler.changeKeyboardVisibility(getActivity(), false);
 
         FlowActionSet currentActionSet = getFlowActionSetByDestination(ruleSet.getUuid());
@@ -140,7 +143,12 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
 
     @Override
     public void onQuestionFinished() {
-        moveToQuestionDelayed(null);
+        if(flowListener != null)
+            flowListener.onFinishedClick();
+
+        if(showLastMessage) {
+            moveToQuestionDelayed(null);
+        }
     }
 
     private void addFlowStep(FlowActionSet flowActionSet, RulesetResponse response) {
@@ -198,6 +206,10 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .replace(R.id.content, nextStepFragment)
                 .commit();
+    }
+
+    public void setShowLastMessage(Boolean showLastMessage) {
+        this.showLastMessage = showLastMessage;
     }
 
     @Nullable
@@ -280,12 +292,18 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
         public void onFlowFinished(FlowStepSet stepSet) {
             FlowFragment.this.flowListener.onFlowFinished(stepSet);
         }
+
+        @Override
+        public void onFinishedClick() {
+            FlowFragment.this.flowListener.onFinishedClick();
+        }
     };
 
     public interface FlowListener {
         void onFlowLanguageChanged(String iso3Language);
         void onFlowResponse(FlowRuleset ruleset);
         void onFlowFinished(FlowStepSet stepSet);
+        void onFinishedClick();
     }
 
     interface FlowFunctionsListener {

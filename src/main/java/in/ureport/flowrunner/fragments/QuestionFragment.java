@@ -8,7 +8,8 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -131,7 +132,9 @@ public class QuestionFragment extends Fragment {
         }
 
         questionText = TranslateManager.translateContactFields(flowDefinition.getContact(), questionText);
-        question.setText(questionText);
+        question.setMovementMethod(LinkMovementMethod.getInstance());
+        question.setClickable(true);
+        question.setText(Html.fromHtml(questionText));
     }
 
     public void setFlowFunctionsListener(FlowFragment.FlowFunctionsListener flowFunctionsListener) {

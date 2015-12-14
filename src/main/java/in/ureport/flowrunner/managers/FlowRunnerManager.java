@@ -74,7 +74,7 @@ public class FlowRunnerManager {
         return false;
     }
 
-    private static FlowActionSet getFlowActionSetByUuid(FlowDefinition flowDefinition, String destination) {
+    public static FlowActionSet getFlowActionSetByUuid(FlowDefinition flowDefinition, String destination) {
         for (FlowActionSet actionSet : flowDefinition.getActionSets()) {
             if(destination.equals(actionSet.getUuid())) {
                 return actionSet;
