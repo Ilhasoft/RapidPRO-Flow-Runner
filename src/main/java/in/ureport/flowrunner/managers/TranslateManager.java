@@ -34,13 +34,13 @@ public class TranslateManager {
         }
     }
 
-    private static String translatePhone(Contact contact, String message) {
+    private static String translatePhone(Contact contact, String message) throws Exception {
         message = message.replaceAll(String.format(CONTACT_FIELD, "tel"), getValueForObject(contact.getPhone()));
         message = message.replaceAll(String.format(CONTACT_FIELD, "tel_e164"), getValueForObject(contact.getPhone()));
         return message;
     }
 
-    private static String translateCustomFields(Contact contact, String message) {
+    private static String translateCustomFields(Contact contact, String message) throws Exception {
         Set<String> fieldKeys = contact.getFields().keySet();
         for (String fieldKey : fieldKeys) {
             Object value = contact.getFields().get(fieldKey);
@@ -50,7 +50,7 @@ public class TranslateManager {
         return message;
     }
 
-    private static String translateRootFields(Contact contact, String message) {
+    private static String translateRootFields(Contact contact, String message) throws Exception {
         for (Field field : contact.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             message = message.replaceAll(String.format(CONTACT_FIELD, field.getName()), getStringForField(contact, field));
