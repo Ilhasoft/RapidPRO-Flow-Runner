@@ -44,10 +44,9 @@ public class FlowRunnerManager {
     }
 
     public static boolean isFlowActive(FlowDefinition flowDefinition) {
-        FlowRun flowRun = flowDefinition.getFlowRun();
-        return flowRun != null && (flowRun.getExpiredOn() != null
-                || (!flowRun.getCompleted() && (flowRun.getExpiresOn() != null && flowRun.getExpiresOn().after(new Date()))));
-    }
+        return !FlowRunnerManager.isFlowCompleted(flowDefinition)
+                && !FlowRunnerManager.isFlowExpired(flowDefinition);
+}
 
     public static boolean isFlowExpired(FlowDefinition flowDefinition) {
         FlowRun flowRun = flowDefinition.getFlowRun();
