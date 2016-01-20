@@ -3,11 +3,14 @@ package in.ureport.flowrunner.views.adapters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import in.ureport.flowrunner.R;
@@ -31,6 +34,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private static final int TYPE_RESPOND = -1;
     private static final int TYPE_HIDE = -2;
+    private static final int TYPE_QUESTION = -3;
 
     private RulesetResponse response;
 
@@ -39,15 +43,17 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private String preferredLanguage;
     private final FlowRuleset ruleSet;
     private final boolean haveNextStep;
+    private CharSequence questionText;
     private final FlowDefinition flowDefinition;
 
     private OnQuestionAnsweredListener onQuestionAnsweredListener;
 
     public QuestionAdapter(FlowDefinition flowDefinition, FlowRuleset ruleSet, boolean haveNextStep,
-                           String preferredLanguage) {
+                           CharSequence questionText, String preferredLanguage) {
         this.ruleSet = ruleSet;
         this.haveNextStep = haveNextStep;
         this.flowDefinition = flowDefinition;
+        this.questionText = questionText;
         this.preferredLanguage = preferredLanguage;
         setHasStableIds(true);
     }
@@ -56,7 +62,9 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         initContext(parent);
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        if(viewType == TYPE_RESPOND) {
+        if (viewType == TYPE_QUESTION) {
+            return new QuestionViewHolder(new AppCompatTextView(parent.getContext()));
+        } else if (viewType == TYPE_RESPOND) {
             return new RespondViewHolder(inflater.inflate(R.layout.item_respond_flow_question, parent, false));
         } else if(viewType == TYPE_HIDE) {
             return new BaseViewHolder(inflater.inflate(R.layout.item_hide, parent, false), flowDefinition);
@@ -80,45 +88,49 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private void initContext(ViewGroup parent) {
-        if(context == null) {
+        if (context == null)
             context = parent.getContext();
-        }
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        switch(getItemViewType(position)) {
+        switch (this.getItemViewType(position)) {
+            case TYPE_QUESTION:
+                break;
             case TYPE_RESPOND:
-                ((RespondViewHolder)holder).bindView();
+                ((RespondViewHolder) holder).bindView();
                 break;
             default:
-                FlowRule rule = ruleSet.getRules().get(position);
-                ((BaseViewHolder)holder).bindView(rule, preferredLanguage, response);
+                FlowRule rule = ruleSet.getRules().get(position - 1);
+                ((BaseViewHolder) holder).bindView(rule, preferredLanguage, response);
         }
     }
 
     @Override
     public long getItemId(int position) {
-        if(isItemType(position)) {
-            return ruleSet.getRules().get(position).getUuid().hashCode();
-        }
-        return TYPE_RESPOND;
+        if (isItemType(position))
+            return ruleSet.getRules().get(position - 1).getUuid().hashCode();
+        else if (position == 0)
+            return TYPE_QUESTION;
+        else
+            return TYPE_RESPOND;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if(isItemType(position)) {
-            FlowRule rule = ruleSet.getRules().get(position);
-            if(FlowRunnerManager.hasRecursiveDestination(flowDefinition, ruleSet, rule)) {
+        if (isItemType(position)) {
+            FlowRule rule = ruleSet.getRules().get(position - 1);
+            if (FlowRunnerManager.hasRecursiveDestination(flowDefinition, ruleSet, rule))
                 return TYPE_HIDE;
-            }
             return getTypeValidationByRule(rule).getType().ordinal();
-        }
-        return TYPE_RESPOND;
+        } else if (position == 0)
+            return TYPE_QUESTION;
+        else
+            return TYPE_RESPOND;
     }
 
     private boolean isItemType(int position) {
-        return !(ruleSet == null || position == ruleSet.getRules().size());
+        return !(ruleSet == null || position == ruleSet.getRules().size() + 1 || position == 0);
     }
 
     @NonNull
@@ -128,12 +140,17 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public int getItemCount() {
-        return ruleSet != null ? ruleSet.getRules().size() + 1 : 1;
+        return ruleSet != null ? ruleSet.getRules().size() + 2 : 2;
+    }
+
+    public void setQuestionText(CharSequence questionText) {
+        this.questionText = questionText;
+        this.notifyItemChanged(0);
     }
 
     public void setPreferredLanguage(String preferredLanguage) {
         this.preferredLanguage = preferredLanguage;
-        notifyDataSetChanged();
+        this.notifyDataSetChanged();
     }
 
     public void setOnQuestionAnsweredListener(OnQuestionAnsweredListener onQuestionAnsweredListener) {
@@ -153,6 +170,14 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         try {
             notifyItemChanged(ruleSet.getRules().indexOf(rule));
         } catch(Exception ignored) {}
+    }
+
+    private class QuestionViewHolder extends RecyclerView.ViewHolder {
+        public QuestionViewHolder(TextView itemView) {
+            super(itemView);
+            itemView.setText(questionText);
+            itemView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        }
     }
 
     private class RespondViewHolder extends RecyclerView.ViewHolder {
@@ -184,7 +209,6 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public void onResponseChanged(FlowRule rule, String response) {
             updateResponse(rule, response);
         }
-
         @Override
         public void onResponseFinished(FlowRule rule) {
             finishQuestion(hasDestination(rule));

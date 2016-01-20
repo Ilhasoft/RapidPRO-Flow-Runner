@@ -12,22 +12,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
+        android:layout_marginBottom="5dp"
         android:textColor="@android:color/darker_gray"
         android:text="@string/title_change_language"/>
-
-    <TextView
-        android:id="@+id/question"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:textSize="18sp"
-        tools:text="Question example of this poll?"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/choicesList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="5dp"/>
+        android:layout_gravity="center_horizontal"/>
 
 </LinearLayout>

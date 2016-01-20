@@ -9,7 +9,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,20 +44,18 @@ public class QuestionFragment extends Fragment {
 
     public static final String ACTION_TYPE_REPLY = "reply";
 
-    private FlowDefinition flowDefinition;
     private FlowRuleset ruleSet;
+    private FlowDefinition flowDefinition;
     private ArrayList<FlowActionSet> actionSetList;
 
-    private QuestionAdapter.OnQuestionAnsweredListener onQuestionAnsweredListener;
-    private FlowFragment.FlowFunctionsListener flowFunctionsListener;
     private FlowFragment.FlowListener flowListener;
+    private FlowFragment.FlowFunctionsListener flowFunctionsListener;
+    private QuestionAdapter.OnQuestionAnsweredListener onQuestionAnsweredListener;
 
+    private boolean haveNextStep;
     private String preferredLanguage;
     private HashSet<String> flowLanguages;
-
     private QuestionAdapter questionAdapter;
-    private TextView question;
-    private boolean haveNextStep;
 
     public static QuestionFragment newInstance(FlowDefinition flowDefinition,
                                                ArrayList<FlowActionSet> actionSetList,
@@ -121,9 +118,6 @@ public class QuestionFragment extends Fragment {
     }
 
     private void setupView(View view) {
-        question = (TextView) view.findViewById(R.id.question);
-        updateQuestionForPreferredLanguage(preferredLanguage);
-
         RecyclerView choiceList = (RecyclerView) view.findViewById(R.id.choicesList);
         choiceList.setLayoutManager(new WrapLinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
 
@@ -131,7 +125,8 @@ public class QuestionFragment extends Fragment {
         spaceItemDecoration.setVerticalSpaceHeight(5);
         choiceList.addItemDecoration(spaceItemDecoration);
 
-        questionAdapter = new QuestionAdapter(flowDefinition, ruleSet, haveNextStep, preferredLanguage);
+        questionAdapter = new QuestionAdapter(flowDefinition, ruleSet, haveNextStep,
+                this.buildQuestion(preferredLanguage), preferredLanguage);
         questionAdapter.setOnQuestionAnsweredListener(onQuestionAnsweredListener);
         choiceList.setAdapter(questionAdapter);
 
@@ -140,7 +135,7 @@ public class QuestionFragment extends Fragment {
         settings.setOnClickListener(onSettingsClickListener);
     }
 
-    private void updateQuestionForPreferredLanguage(String preferredLanguage) {
+    public CharSequence buildQuestion(String preferredLanguage) {
         String questionText = "";
         for (FlowActionSet actionSet : actionSetList) {
             List<FlowAction> actions = actionSet.getActions();
@@ -155,9 +150,7 @@ public class QuestionFragment extends Fragment {
             }
         }
         questionText = TranslateManager.translateContactFields(flowDefinition.getContact(), questionText.substring(0, questionText.length() - 4));
-        question.setMovementMethod(LinkMovementMethod.getInstance());
-        question.setClickable(true);
-        question.setText(Html.fromHtml(questionText));
+        return Html.fromHtml(questionText);
     }
 
     public void setFlowFunctionsListener(FlowFragment.FlowFunctionsListener flowFunctionsListener) {
@@ -185,7 +178,7 @@ public class QuestionFragment extends Fragment {
                         public void onClick(DialogInterface dialog, int which) {
                             preferredLanguage = customLocales[which].getIso3Language();
                             flowListener.onFlowLanguageChanged(preferredLanguage);
-                            updateQuestionForPreferredLanguage(preferredLanguage);
+                            questionAdapter.setQuestionText(buildQuestion(preferredLanguage));
                             questionAdapter.setPreferredLanguage(preferredLanguage);
                         }
                     }).create();
