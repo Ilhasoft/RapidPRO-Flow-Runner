@@ -64,7 +64,6 @@ public class QuestionFragment extends Fragment {
                                                ArrayList<FlowActionSet> actionSetList,
                                                FlowRuleset ruleSet, boolean haveNextStep,
                                                String language) {
-
         Bundle args = new Bundle();
         args.putBoolean(EXTRA_HAVE_NEXT_STEP, haveNextStep);
         args.putParcelableArrayList(EXTRA_ACTION_SET_LIST, actionSetList);
@@ -149,14 +148,13 @@ public class QuestionFragment extends Fragment {
                 if (ACTION_TYPE_REPLY.equals(flowAction.getType())) {
                     Map<String, String> messageMap = flowAction.getMessage();
                     if (messageMap.containsKey(preferredLanguage))
-                        questionText += messageMap.get(preferredLanguage);
+                        questionText += messageMap.get(preferredLanguage) + "<br>";
                     else
-                        questionText += messageMap.get(flowDefinition.getBaseLanguage());
-                    questionText += "\n";
+                        questionText += messageMap.get(flowDefinition.getBaseLanguage()) + "<br>";
                 }
             }
         }
-        questionText = TranslateManager.translateContactFields(flowDefinition.getContact(), questionText);
+        questionText = TranslateManager.translateContactFields(flowDefinition.getContact(), questionText.substring(0, questionText.length() - 4));
         question.setMovementMethod(LinkMovementMethod.getInstance());
         question.setClickable(true);
         question.setText(Html.fromHtml(questionText));
