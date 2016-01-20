@@ -41,6 +41,8 @@ public class QuestionFragment extends Fragment {
     private static final String EXTRA_FLOW_DEFINITION = "flowDefinition";
     private static final String EXTRA_LANGUAGE = "language";
 
+    public static final String ACTION_TYPE_REPLY = "reply";
+
     private FlowDefinition flowDefinition;
     private FlowRuleset ruleSet;
     private FlowActionSet actionSet;
@@ -90,14 +92,17 @@ public class QuestionFragment extends Fragment {
     }
 
     private void setupQuestionLanguages() {
-        if(preferredLanguage == null)
+        if (preferredLanguage == null)
             preferredLanguage = flowDefinition.getBaseLanguage();
 
         flowLanguages = new HashSet<>();
-        if(actionSet != null) {
+        if (actionSet != null) {
             for (FlowAction flowAction : actionSet.getActions()) {
-                Map<String, String> messages = flowAction.getMessage();
-                flowLanguages.addAll(messages.keySet());
+                if (ACTION_TYPE_REPLY.equals(flowAction.getType())) {
+                    Map<String, String> messages = flowAction.getMessage();
+                    flowLanguages.addAll(messages.keySet());
+                    return;
+                }
             }
         }
     }
@@ -123,14 +128,18 @@ public class QuestionFragment extends Fragment {
     }
 
     private void updateQuestionForPreferredLanguage(String preferredLanguage) {
-        Map<String, String> messageMap = actionSet.getActions().get(0).getMessage();
-        String questionText;
-        if (messageMap.containsKey(preferredLanguage)) {
-            questionText = messageMap.get(preferredLanguage);
-        } else {
-            questionText = messageMap.get(flowDefinition.getBaseLanguage());
+        String questionText = "";
+        List<FlowAction> actions = actionSet.getActions();
+        for (FlowAction flowAction : actions) {
+            if (ACTION_TYPE_REPLY.equals(flowAction.getType())) {
+                Map<String, String> messageMap = flowAction.getMessage();
+                if (messageMap.containsKey(preferredLanguage))
+                    questionText += messageMap.get(preferredLanguage);
+                else
+                    questionText += messageMap.get(flowDefinition.getBaseLanguage());
+                questionText += "\n";
+            }
         }
-
         questionText = TranslateManager.translateContactFields(flowDefinition.getContact(), questionText);
         question.setMovementMethod(LinkMovementMethod.getInstance());
         question.setClickable(true);

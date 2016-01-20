@@ -5,15 +5,15 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp">
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/settings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right|end"
+        android:layout_gravity="end"
         android:textColor="@android:color/darker_gray"
-        android:text="@string/title_change_language" />
+        android:text="@string/title_change_language"/>
 
     <TextView
         android:id="@+id/question"
@@ -21,13 +21,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:textSize="18sp"
-        tools:text="Question example of this poll?" />
+        tools:text="Question example of this poll?"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/choicesList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="15dp"/>
+        android:layout_marginTop="5dp"/>
 
 </LinearLayout>
