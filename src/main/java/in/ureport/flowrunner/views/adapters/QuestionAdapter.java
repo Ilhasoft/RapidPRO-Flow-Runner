@@ -36,15 +36,18 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private Context context;
 
-    private FlowDefinition flowDefinition;
-    private FlowRuleset ruleSet;
     private String preferredLanguage;
+    private final FlowRuleset ruleSet;
+    private final boolean haveNextStep;
+    private final FlowDefinition flowDefinition;
 
     private OnQuestionAnsweredListener onQuestionAnsweredListener;
 
-    public QuestionAdapter(FlowDefinition flowDefinition, FlowRuleset ruleSet, String preferredLanguage) {
-        this.flowDefinition = flowDefinition;
+    public QuestionAdapter(FlowDefinition flowDefinition, FlowRuleset ruleSet, boolean haveNextStep,
+                           String preferredLanguage) {
         this.ruleSet = ruleSet;
+        this.haveNextStep = haveNextStep;
+        this.flowDefinition = flowDefinition;
         this.preferredLanguage = preferredLanguage;
         setHasStableIds(true);
     }
@@ -164,13 +167,13 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         private void bindView() {
-            respond.setText(hasDestination(getLayoutPosition()) ? R.string.label_next_question : R.string.label_finish_poll);
+            respond.setText(haveNextStep ? R.string.label_next_question : R.string.label_finish_poll);
         }
 
         private View.OnClickListener onRespondClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finishQuestion(hasDestination(getLayoutPosition()));
+                finishQuestion(haveNextStep);
             }
         };
     }
@@ -189,24 +192,25 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     };
 
     private void finishQuestion(boolean hasDestination) {
-        if((response == null || response.getResponse() == null)) {
-            if(hasDestination) {
+        if ((response == null || response.getResponse() == null)) {
+            if (hasDestination) {
                 displayAlert(R.string.error_choose_answer);
             } else {
                 onQuestionAnsweredListener.onQuestionFinished();
             }
-        } else {
-            validateResponseAndSend();
-        }
+        } else if (validateResponseAndSend() && !hasDestination)
+            onQuestionAnsweredListener.onQuestionFinished();
     }
 
-    private void validateResponseAndSend() {
-        if(FlowRunnerManager.validateResponse(flowDefinition, response)) {
+    private boolean validateResponseAndSend() {
+        boolean isValidResponse = FlowRunnerManager.validateResponse(flowDefinition, response);
+        if (isValidResponse)
             onQuestionAnsweredListener.onQuestionAnswered(ruleSet, response);
-        } else {
+        else {
             TypeValidation typeValidation = TypeValidation.getTypeValidationForRule(response.getRule());
             displayAlert(typeValidation.getMessage());
         }
+        return isValidResponse;
     }
 
     private void displayAlert(@StringRes int message) {
@@ -223,11 +227,6 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         } else {
             QuestionAdapter.this.response = new RulesetResponse(rule, response);
         }
-    }
-
-    private boolean hasDestination(int rulePosition) {
-        return ruleSet != null && !ruleSet.getRules().isEmpty()
-                && ruleSet.getRules().get(rulePosition-1).getDestination() != null;
     }
 
     private boolean hasDestination(FlowRule rule) {

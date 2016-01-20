@@ -38,6 +38,7 @@ import in.ureport.flowrunner.views.manager.SpaceItemDecoration;
 public class QuestionFragment extends Fragment {
 
     private static final String EXTRA_RULE_SET = "ruleSet";
+    private static final String EXTRA_HAVE_NEXT_STEP = "haveNextStep";
     private static final String EXTRA_ACTION_SET_LIST = "actionSetList";
     private static final String EXTRA_FLOW_DEFINITION = "flowDefinition";
     private static final String EXTRA_LANGUAGE = "language";
@@ -57,11 +58,15 @@ public class QuestionFragment extends Fragment {
 
     private QuestionAdapter questionAdapter;
     private TextView question;
+    private boolean haveNextStep;
 
     public static QuestionFragment newInstance(FlowDefinition flowDefinition,
                                                ArrayList<FlowActionSet> actionSetList,
-                                               FlowRuleset ruleSet, String language) {
+                                               FlowRuleset ruleSet, boolean haveNextStep,
+                                               String language) {
+
         Bundle args = new Bundle();
+        args.putBoolean(EXTRA_HAVE_NEXT_STEP, haveNextStep);
         args.putParcelableArrayList(EXTRA_ACTION_SET_LIST, actionSetList);
         args.putParcelable(EXTRA_RULE_SET, ruleSet);
         args.putParcelable(EXTRA_FLOW_DEFINITION, flowDefinition);
@@ -94,6 +99,7 @@ public class QuestionFragment extends Fragment {
 
         ruleSet = arguments.getParcelable(EXTRA_RULE_SET);
         preferredLanguage = arguments.getString(EXTRA_LANGUAGE);
+        haveNextStep = arguments.getBoolean(EXTRA_HAVE_NEXT_STEP);
         flowDefinition = arguments.getParcelable(EXTRA_FLOW_DEFINITION);
         actionSetList = arguments.getParcelableArrayList(EXTRA_ACTION_SET_LIST);
     }
@@ -126,7 +132,7 @@ public class QuestionFragment extends Fragment {
         spaceItemDecoration.setVerticalSpaceHeight(5);
         choiceList.addItemDecoration(spaceItemDecoration);
 
-        questionAdapter = new QuestionAdapter(flowDefinition, ruleSet, preferredLanguage);
+        questionAdapter = new QuestionAdapter(flowDefinition, ruleSet, haveNextStep, preferredLanguage);
         questionAdapter.setOnQuestionAnsweredListener(onQuestionAnsweredListener);
         choiceList.setAdapter(questionAdapter);
 
