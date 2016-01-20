@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -37,7 +38,7 @@ import in.ureport.flowrunner.views.manager.SpaceItemDecoration;
 public class QuestionFragment extends Fragment {
 
     private static final String EXTRA_RULE_SET = "ruleSet";
-    private static final String EXTRA_ACTION_SET = "actionSet";
+    private static final String EXTRA_ACTION_SET_LIST = "actionSetList";
     private static final String EXTRA_FLOW_DEFINITION = "flowDefinition";
     private static final String EXTRA_LANGUAGE = "language";
 
@@ -45,7 +46,7 @@ public class QuestionFragment extends Fragment {
 
     private FlowDefinition flowDefinition;
     private FlowRuleset ruleSet;
-    private FlowActionSet actionSet;
+    private ArrayList<FlowActionSet> actionSetList;
 
     private QuestionAdapter.OnQuestionAnsweredListener onQuestionAnsweredListener;
     private FlowFragment.FlowFunctionsListener flowFunctionsListener;
@@ -57,9 +58,11 @@ public class QuestionFragment extends Fragment {
     private QuestionAdapter questionAdapter;
     private TextView question;
 
-    public static QuestionFragment newInstance(FlowDefinition flowDefinition, FlowActionSet actionSet, FlowRuleset ruleSet, String language) {
+    public static QuestionFragment newInstance(FlowDefinition flowDefinition,
+                                               ArrayList<FlowActionSet> actionSetList,
+                                               FlowRuleset ruleSet, String language) {
         Bundle args = new Bundle();
-        args.putParcelable(EXTRA_ACTION_SET, actionSet);
+        args.putParcelableArrayList(EXTRA_ACTION_SET_LIST, actionSetList);
         args.putParcelable(EXTRA_RULE_SET, ruleSet);
         args.putParcelable(EXTRA_FLOW_DEFINITION, flowDefinition);
         args.putString(EXTRA_LANGUAGE, language);
@@ -85,10 +88,14 @@ public class QuestionFragment extends Fragment {
     }
 
     private void setupData() {
-        flowDefinition = getArguments().getParcelable(EXTRA_FLOW_DEFINITION);
-        actionSet = getArguments().getParcelable(EXTRA_ACTION_SET);
-        ruleSet = getArguments().getParcelable(EXTRA_RULE_SET);
-        preferredLanguage = getArguments().getString(EXTRA_LANGUAGE);
+        Bundle arguments = this.getArguments();
+        if (arguments == null || !arguments.containsKey(EXTRA_FLOW_DEFINITION))
+            throw new RuntimeException("Must instantiate this fragment calling newInstance method.");
+
+        ruleSet = arguments.getParcelable(EXTRA_RULE_SET);
+        preferredLanguage = arguments.getString(EXTRA_LANGUAGE);
+        flowDefinition = arguments.getParcelable(EXTRA_FLOW_DEFINITION);
+        actionSetList = arguments.getParcelableArrayList(EXTRA_ACTION_SET_LIST);
     }
 
     private void setupQuestionLanguages() {
@@ -96,6 +103,7 @@ public class QuestionFragment extends Fragment {
             preferredLanguage = flowDefinition.getBaseLanguage();
 
         flowLanguages = new HashSet<>();
+        FlowActionSet actionSet = actionSetList.get(0);
         if (actionSet != null) {
             for (FlowAction flowAction : actionSet.getActions()) {
                 if (ACTION_TYPE_REPLY.equals(flowAction.getType())) {
@@ -129,15 +137,17 @@ public class QuestionFragment extends Fragment {
 
     private void updateQuestionForPreferredLanguage(String preferredLanguage) {
         String questionText = "";
-        List<FlowAction> actions = actionSet.getActions();
-        for (FlowAction flowAction : actions) {
-            if (ACTION_TYPE_REPLY.equals(flowAction.getType())) {
-                Map<String, String> messageMap = flowAction.getMessage();
-                if (messageMap.containsKey(preferredLanguage))
-                    questionText += messageMap.get(preferredLanguage);
-                else
-                    questionText += messageMap.get(flowDefinition.getBaseLanguage());
-                questionText += "\n";
+        for (FlowActionSet actionSet : actionSetList) {
+            List<FlowAction> actions = actionSet.getActions();
+            for (FlowAction flowAction : actions) {
+                if (ACTION_TYPE_REPLY.equals(flowAction.getType())) {
+                    Map<String, String> messageMap = flowAction.getMessage();
+                    if (messageMap.containsKey(preferredLanguage))
+                        questionText += messageMap.get(preferredLanguage);
+                    else
+                        questionText += messageMap.get(flowDefinition.getBaseLanguage());
+                    questionText += "\n";
+                }
             }
         }
         questionText = TranslateManager.translateContactFields(flowDefinition.getContact(), questionText);

@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,7 +85,7 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
     }
 
     private void setupInitialData() {
-        if(FlowRunnerManager.isFlowCompleted(flowDefinition)) {
+        if (FlowRunnerManager.isFlowCompleted(flowDefinition)) {
             moveToQuestion(null);
         } else {
             moveToQuestion(getFlowActionSetByUuid(flowDefinition.getEntry()));
@@ -104,7 +105,7 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if(context instanceof FlowListener) {
+        if (context instanceof FlowListener) {
             flowListener = (FlowListener) context;
         }
     }
@@ -125,7 +126,7 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
 
     @Override
     public void onQuestionAnswered(FlowRuleset ruleSet, RulesetResponse response) {
-        if(flowListener != null)
+        if (flowListener != null)
             flowListener.onFlowResponse(ruleSet);
 
         keyboardHandler.changeKeyboardVisibility(getActivity(), false);
@@ -134,7 +135,7 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
         addFlowStep(currentActionSet, response);
 
         FlowActionSet nextActionSet = getFlowActionSetByUuid(response.getRule().getDestination());
-        if(FlowRunnerManager.isLastActionSet(nextActionSet) && flowListener != null) {
+        if (FlowRunnerManager.isLastActionSet(nextActionSet) && flowListener != null) {
             flowListener.onFlowFinished(flowStepSet);
         }
 
@@ -143,10 +144,10 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
 
     @Override
     public void onQuestionFinished() {
-        if(flowListener != null)
+        if (flowListener != null)
             flowListener.onFinishedClick();
 
-        if(showLastMessage) {
+        if (showLastMessage) {
             moveToQuestionDelayed(null);
         }
     }
@@ -192,12 +193,17 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
 
     private void moveToQuestion(FlowActionSet flowActionSet) {
         Fragment nextStepFragment;
-        if(flowActionSet != null) {
-            nextStepFragment = QuestionFragment.newInstance(flowDefinition
-                    , flowActionSet, getRulesetForAction(flowActionSet), preferredLanguage);
-            ((QuestionFragment)nextStepFragment).setOnQuestionAnsweredListener(this);
-            ((QuestionFragment)nextStepFragment).setFlowFunctionsListener(flowFunctionsListener);
-            ((QuestionFragment)nextStepFragment).setFlowListener(onFlowListener);
+        if (flowActionSet != null) {
+            ArrayList<FlowActionSet> flowActionSetList = this.getFlowActionSetListByFirst(flowActionSet);
+            FlowActionSet flowActionSetLast = flowActionSetList.get(flowActionSetList.size() -1);
+
+            QuestionFragment questionFragment = QuestionFragment.newInstance(flowDefinition,
+                    flowActionSetList, this.getRulesetForAction(flowActionSetLast), preferredLanguage);
+            questionFragment.setOnQuestionAnsweredListener(this);
+            questionFragment.setFlowFunctionsListener(flowFunctionsListener);
+            questionFragment.setFlowListener(onFlowListener);
+
+            nextStepFragment = questionFragment;
         } else {
             nextStepFragment = new InfoFragment();
         }
@@ -212,12 +218,25 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
         this.showLastMessage = showLastMessage;
     }
 
+    private ArrayList<FlowActionSet> getFlowActionSetListByFirst(FlowActionSet flowActionSetFirst) {
+        ArrayList<FlowActionSet> flowActionSetList = new ArrayList<>();
+        FlowActionSet flowActionSet = flowActionSetFirst;
+        while (flowActionSet != null) {
+            flowActionSetList.add(flowActionSet);
+            String destination = flowActionSet.getDestination();
+            if (!TextUtils.isEmpty(destination))
+                flowActionSet = this.getFlowActionSetByUuid(destination);
+            else
+                flowActionSet = null;
+        }
+        return flowActionSetList;
+    }
+
     @Nullable
     private FlowActionSet getFlowActionSetByUuid(String uuid) {
         for (FlowActionSet actionSet : flowDefinition.getActionSets()) {
-            if(actionSet.getUuid().equals(uuid)) {
+            if (actionSet.getUuid().equals(uuid))
                 return actionSet;
-            }
         }
         return null;
     }
@@ -225,20 +244,19 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
     @Nullable
     private FlowActionSet getFlowActionSetByDestination(String destination) {
         for (FlowActionSet actionSet : flowDefinition.getActionSets()) {
-            if(actionSet.getDestination() != null && actionSet.getDestination().equals(destination)) {
+            String destinationToTest = actionSet.getDestination();
+            if (destinationToTest != null && destinationToTest.equals(destination))
                 return actionSet;
-            }
         }
         return null;
     }
 
     @Nullable
     private FlowRuleset getRulesetForAction(FlowActionSet actionSet) {
-        for (FlowRuleset ruleSet : flowDefinition.getRuleSets()) {
-            if(actionSet != null && actionSet.getDestination() != null
-            && actionSet.getDestination().equals(ruleSet.getUuid())) {
-                return ruleSet;
-            }
+        for (FlowRuleset ruleset : flowDefinition.getRuleSets()) {
+            String destination = actionSet.getDestination();
+            if (destination != null && destination.equals(ruleset.getUuid()))
+                return ruleset;
         }
         return null;
     }
@@ -282,17 +300,14 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
             FlowFragment.this.flowListener.onFlowLanguageChanged(iso3Language);
             preferredLanguage = iso3Language;
         }
-
         @Override
         public void onFlowResponse(FlowRuleset ruleset) {
             FlowFragment.this.flowListener.onFlowResponse(ruleset);
         }
-
         @Override
         public void onFlowFinished(FlowStepSet stepSet) {
             FlowFragment.this.flowListener.onFlowFinished(stepSet);
         }
-
         @Override
         public void onFinishedClick() {
             FlowFragment.this.flowListener.onFinishedClick();
