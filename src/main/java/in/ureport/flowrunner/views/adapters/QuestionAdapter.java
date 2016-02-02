@@ -1,6 +1,7 @@
 package in.ureport.flowrunner.views.adapters;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.AppCompatTextView;
@@ -40,6 +41,8 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private Context context;
 
+    @LayoutRes
+    private int responseButtonRes;
     private String preferredLanguage;
     private final FlowRuleset ruleSet;
     private final boolean haveNextStep;
@@ -49,12 +52,13 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private OnQuestionAnsweredListener onQuestionAnsweredListener;
 
     public QuestionAdapter(FlowDefinition flowDefinition, FlowRuleset ruleSet, boolean haveNextStep,
-                           CharSequence questionText, String preferredLanguage) {
+                           CharSequence questionText, String preferredLanguage, int responseButtonRes) {
         this.ruleSet = ruleSet;
         this.haveNextStep = haveNextStep;
         this.flowDefinition = flowDefinition;
         this.questionText = questionText;
         this.preferredLanguage = preferredLanguage;
+        this.responseButtonRes = responseButtonRes;
         setHasStableIds(true);
     }
 
@@ -65,7 +69,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (viewType == TYPE_QUESTION) {
             return new QuestionViewHolder(new AppCompatTextView(parent.getContext()));
         } else if (viewType == TYPE_RESPOND) {
-            return new RespondViewHolder(inflater.inflate(R.layout.item_respond_flow_question, parent, false));
+            return new RespondViewHolder(inflater.inflate(responseButtonRes, parent, false));
         } else if(viewType == TYPE_HIDE) {
             return new BaseViewHolder(inflater.inflate(R.layout.item_hide, parent, false), flowDefinition);
         } else {
@@ -186,7 +190,6 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         public RespondViewHolder(View itemView) {
             super(itemView);
-
             respond = (Button) itemView.findViewById(R.id.respond);
             respond.setOnClickListener(onRespondClickListener);
         }

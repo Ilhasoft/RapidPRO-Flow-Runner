@@ -2,6 +2,7 @@ package in.ureport.flowrunner.fragments;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -40,9 +41,13 @@ public class QuestionFragment extends Fragment {
     private static final String EXTRA_HAVE_NEXT_STEP = "haveNextStep";
     private static final String EXTRA_ACTION_SET_LIST = "actionSetList";
     private static final String EXTRA_FLOW_DEFINITION = "flowDefinition";
+    private static final String EXTRA_RESPONSE_BUTTON = "responseButton";
     private static final String EXTRA_LANGUAGE = "language";
 
     public static final String ACTION_TYPE_REPLY = "reply";
+
+    @LayoutRes
+    private int responseButtonRes;
 
     private FlowRuleset ruleSet;
     private FlowDefinition flowDefinition;
@@ -60,12 +65,13 @@ public class QuestionFragment extends Fragment {
     public static QuestionFragment newInstance(FlowDefinition flowDefinition,
                                                ArrayList<FlowActionSet> actionSetList,
                                                FlowRuleset ruleSet, boolean haveNextStep,
-                                               String language) {
+                                               String language, @LayoutRes int responseButtonRes) {
         Bundle args = new Bundle();
         args.putBoolean(EXTRA_HAVE_NEXT_STEP, haveNextStep);
         args.putParcelableArrayList(EXTRA_ACTION_SET_LIST, actionSetList);
         args.putParcelable(EXTRA_RULE_SET, ruleSet);
         args.putParcelable(EXTRA_FLOW_DEFINITION, flowDefinition);
+        args.putInt(EXTRA_RESPONSE_BUTTON, responseButtonRes);
         args.putString(EXTRA_LANGUAGE, language);
 
         QuestionFragment fragment = new QuestionFragment();
@@ -96,6 +102,7 @@ public class QuestionFragment extends Fragment {
         ruleSet = arguments.getParcelable(EXTRA_RULE_SET);
         preferredLanguage = arguments.getString(EXTRA_LANGUAGE);
         haveNextStep = arguments.getBoolean(EXTRA_HAVE_NEXT_STEP);
+        responseButtonRes = arguments.getInt(EXTRA_RESPONSE_BUTTON);
         flowDefinition = arguments.getParcelable(EXTRA_FLOW_DEFINITION);
         actionSetList = arguments.getParcelableArrayList(EXTRA_ACTION_SET_LIST);
     }
@@ -126,7 +133,7 @@ public class QuestionFragment extends Fragment {
         choiceList.addItemDecoration(spaceItemDecoration);
 
         questionAdapter = new QuestionAdapter(flowDefinition, ruleSet, haveNextStep,
-                this.buildQuestion(preferredLanguage), preferredLanguage);
+                this.buildQuestion(preferredLanguage), preferredLanguage, responseButtonRes);
         questionAdapter.setOnQuestionAnsweredListener(onQuestionAnsweredListener);
         choiceList.setAdapter(questionAdapter);
 
