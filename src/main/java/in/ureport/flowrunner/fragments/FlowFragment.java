@@ -3,6 +3,7 @@ package in.ureport.flowrunner.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -41,6 +42,7 @@ import in.ureport.flowrunner.views.adapters.QuestionAdapter;
 public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestionAnsweredListener
         , LoaderManager.LoaderCallbacks<Locale []> {
 
+    private static final String EXTRA_RESPONSE_BUTTON = "responseButton";
     private static final String EXTRA_FLOW_DEFINITION = "flowDefinition";
     private static final String EXTRA_LANGUAGE = "language";
 
@@ -49,6 +51,8 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
     private KeyboardHandler keyboardHandler;
     private Handler handler;
 
+    @LayoutRes
+    private int responseButtonRes;
     private FlowDefinition flowDefinition;
     private FlowStepSet flowStepSet;
 
@@ -59,9 +63,15 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
     private Boolean showLastMessage = true;
 
     public static FlowFragment newInstance(FlowDefinition flowDefinition, String language) {
+        return FlowFragment.newInstance(flowDefinition, language, R.layout.item_respond_flow_question);
+    }
+
+    public static FlowFragment newInstance(FlowDefinition flowDefinition, String language,
+                                           @LayoutRes int responseButtonRes) {
         Bundle args = new Bundle();
-        args.putParcelable(EXTRA_FLOW_DEFINITION, flowDefinition);
         args.putString(EXTRA_LANGUAGE, language);
+        args.putInt(EXTRA_RESPONSE_BUTTON, responseButtonRes);
+        args.putParcelable(EXTRA_FLOW_DEFINITION, flowDefinition);
 
         FlowFragment fragment = new FlowFragment();
         fragment.setArguments(args);
@@ -94,8 +104,10 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
     }
 
     private void setupData() {
-        flowDefinition = getArguments().getParcelable(EXTRA_FLOW_DEFINITION);
-        preferredLanguage = getArguments().getString(EXTRA_LANGUAGE);
+        Bundle arguments = this.getArguments();
+        preferredLanguage = arguments.getString(EXTRA_LANGUAGE);
+        responseButtonRes = arguments.getInt(EXTRA_RESPONSE_BUTTON);
+        flowDefinition = arguments.getParcelable(EXTRA_FLOW_DEFINITION);
     }
 
     private void loadAllLanguages() {
@@ -199,7 +211,7 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
 
             FlowRuleset flowRuleset = this.getRulesetForAction(flowActionSetLast);
             QuestionFragment questionFragment = QuestionFragment.newInstance(flowDefinition,
-                    flowActionSetList, flowRuleset, this.hasNextStep(flowRuleset), preferredLanguage);
+                    flowActionSetList, flowRuleset, this.hasNextStep(flowRuleset), preferredLanguage, responseButtonRes);
             questionFragment.setOnQuestionAnsweredListener(this);
             questionFragment.setFlowFunctionsListener(flowFunctionsListener);
             questionFragment.setFlowListener(onFlowListener);
