@@ -100,6 +100,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (this.getItemViewType(position)) {
             case TYPE_QUESTION:
+                ((QuestionViewHolder) holder).bind(questionText);
                 break;
             case TYPE_RESPOND:
                 ((RespondViewHolder) holder).bindView();
@@ -179,8 +180,11 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private class QuestionViewHolder extends RecyclerView.ViewHolder {
         public QuestionViewHolder(TextView itemView) {
             super(itemView);
-            itemView.setText(questionText);
             itemView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        }
+
+        private void bind(CharSequence questionText) {
+            ((TextView)itemView).setText(questionText);
         }
     }
 
