@@ -6,6 +6,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,13 +48,13 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private String preferredLanguage;
     private final FlowRuleset ruleSet;
     private final boolean haveNextStep;
-    private CharSequence questionText;
+    private Spanned questionText;
     private final FlowDefinition flowDefinition;
 
     private OnQuestionAnsweredListener onQuestionAnsweredListener;
 
     public QuestionAdapter(FlowDefinition flowDefinition, FlowRuleset ruleSet, boolean haveNextStep,
-                           CharSequence questionText, String preferredLanguage, int responseButtonRes) {
+                           Spanned questionText, String preferredLanguage, int responseButtonRes) {
         this.ruleSet = ruleSet;
         this.haveNextStep = haveNextStep;
         this.flowDefinition = flowDefinition;
@@ -67,7 +69,9 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         initContext(parent);
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         if (viewType == TYPE_QUESTION) {
-            return new QuestionViewHolder(new AppCompatTextView(parent.getContext()));
+            AppCompatTextView textView = new AppCompatTextView(parent.getContext());
+            textView.setMovementMethod(LinkMovementMethod.getInstance());
+            return new QuestionViewHolder(textView);
         } else if (viewType == TYPE_RESPOND) {
             return new RespondViewHolder(inflater.inflate(responseButtonRes, parent, false));
         } else if(viewType == TYPE_HIDE) {
@@ -148,7 +152,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return ruleSet != null ? ruleSet.getRules().size() + 2 : 2;
     }
 
-    public void setQuestionText(CharSequence questionText) {
+    public void setQuestionText(Spanned questionText) {
         this.questionText = questionText;
         this.notifyItemChanged(0);
     }
@@ -183,7 +187,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             itemView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         }
 
-        private void bind(CharSequence questionText) {
+        private void bind(Spanned questionText) {
             ((TextView)itemView).setText(questionText);
         }
     }
