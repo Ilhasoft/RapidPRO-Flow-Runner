@@ -1,9 +1,12 @@
 package in.ureport.flowrunner.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by johncordeiro on 14/10/15.
  */
-public class RulesetResponse {
+public class RulesetResponse implements Parcelable {
 
     private FlowRule rule;
 
@@ -44,4 +47,33 @@ public class RulesetResponse {
     public int hashCode() {
         return rule.hashCode();
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(this.rule, flags);
+        dest.writeString(this.response);
+    }
+
+    protected RulesetResponse(Parcel in) {
+        this.rule = in.readParcelable(FlowRule.class.getClassLoader());
+        this.response = in.readString();
+    }
+
+    public static final Creator<RulesetResponse> CREATOR = new Creator<RulesetResponse>() {
+        @Override
+        public RulesetResponse createFromParcel(Parcel source) {
+            return new RulesetResponse(source);
+        }
+
+        @Override
+        public RulesetResponse[] newArray(int size) {
+            return new RulesetResponse[size];
+        }
+    };
 }

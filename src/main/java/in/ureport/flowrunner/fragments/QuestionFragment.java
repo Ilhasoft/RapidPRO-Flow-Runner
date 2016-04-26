@@ -29,6 +29,7 @@ import in.ureport.flowrunner.models.FlowAction;
 import in.ureport.flowrunner.models.FlowActionSet;
 import in.ureport.flowrunner.models.FlowDefinition;
 import in.ureport.flowrunner.models.FlowRuleset;
+import in.ureport.flowrunner.models.RulesetResponse;
 import in.ureport.flowrunner.views.adapters.QuestionAdapter;
 import in.ureport.flowrunner.views.manager.SpaceItemDecoration;
 
@@ -43,6 +44,8 @@ public class QuestionFragment extends Fragment {
     private static final String EXTRA_FLOW_DEFINITION = "flowDefinition";
     private static final String EXTRA_RESPONSE_BUTTON = "responseButton";
     private static final String EXTRA_LANGUAGE = "language";
+
+    private static final String EXTRA_RULESET_RESPONSE = "rulesetResponse";
 
     public static final String ACTION_TYPE_REPLY = "reply";
 
@@ -91,7 +94,13 @@ public class QuestionFragment extends Fragment {
 
         setupData();
         setupQuestionLanguages();
-        setupView(view);
+        setupView(view, savedInstanceState);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(EXTRA_RULESET_RESPONSE, questionAdapter.getResponse());
     }
 
     private void setupData() {
@@ -124,7 +133,7 @@ public class QuestionFragment extends Fragment {
         }
     }
 
-    private void setupView(View view) {
+    private void setupView(View view, Bundle savedInstanceState) {
         RecyclerView choiceList = (RecyclerView) view.findViewById(R.id.choicesList);
         choiceList.setLayoutManager(new WrapLinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
 
@@ -136,6 +145,10 @@ public class QuestionFragment extends Fragment {
                 this.buildQuestion(preferredLanguage), preferredLanguage, responseButtonRes);
         questionAdapter.setOnQuestionAnsweredListener(onQuestionAnsweredListener);
         choiceList.setAdapter(questionAdapter);
+
+        if(savedInstanceState != null && savedInstanceState.containsKey(EXTRA_RULESET_RESPONSE)) {
+            questionAdapter.setResponse((RulesetResponse) savedInstanceState.getParcelable(EXTRA_RULESET_RESPONSE));
+        }
 
         TextView settings = (TextView) view.findViewById(R.id.settings);
         settings.setVisibility(flowLanguages.size() > 1 ? View.VISIBLE : View.GONE);

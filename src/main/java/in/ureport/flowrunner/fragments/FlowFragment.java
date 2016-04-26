@@ -45,8 +45,7 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
     private static final String EXTRA_RESPONSE_BUTTON = "responseButton";
     private static final String EXTRA_FLOW_DEFINITION = "flowDefinition";
     private static final String EXTRA_LANGUAGE = "language";
-
-    private static final String TAG = "FlowFragment";
+    private static final String EXTRA_FLOW_STEP_SET = "flowStepSet";
 
     private KeyboardHandler keyboardHandler;
     private Handler handler;
@@ -90,14 +89,25 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
 
         setupData();
         setupObjects();
-        setupFlowStepSet();
         loadAllLanguages();
-        setupInitialData();
+        setupFlowStepSet(savedInstanceState);
+        setupInitialData(savedInstanceState);
     }
 
-    private void setupInitialData() {
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(EXTRA_FLOW_STEP_SET, flowStepSet);
+    }
+
+    private void setupInitialData(Bundle savedInstanceState) {
         if (FlowRunnerManager.isFlowCompleted(flowDefinition)) {
             moveToQuestion(null);
+        } else if(savedInstanceState != null && savedInstanceState.containsKey(EXTRA_FLOW_STEP_SET)) {
+            Fragment fragment = getChildFragmentManager().findFragmentById(R.id.content);
+            if(fragment instanceof QuestionFragment) {
+                setupQuestionListeners((QuestionFragment)fragment);
+            }
         } else {
             moveToQuestion(getFlowActionSetByUuid(flowDefinition.getEntry()));
         }
@@ -123,13 +133,17 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
         }
     }
 
-    private void setupFlowStepSet() {
-        flowStepSet = new FlowStepSet();
-        flowStepSet.setFlow(flowDefinition.getMetadata().getUuid());
-        flowStepSet.setRevision(flowDefinition.getMetadata().getRevision());
-        flowStepSet.setStarted(new Date());
-        flowStepSet.setCompleted(true);
-        flowStepSet.setSteps(new ArrayList<FlowStep>());
+    private void setupFlowStepSet(Bundle savedInstanceBundle) {
+        if(savedInstanceBundle != null && savedInstanceBundle.containsKey(EXTRA_FLOW_STEP_SET)) {
+            flowStepSet = savedInstanceBundle.getParcelable(EXTRA_FLOW_STEP_SET);
+        } else {
+            flowStepSet = new FlowStepSet();
+            flowStepSet.setFlow(flowDefinition.getMetadata().getUuid());
+            flowStepSet.setRevision(flowDefinition.getMetadata().getRevision());
+            flowStepSet.setStarted(new Date());
+            flowStepSet.setCompleted(true);
+            flowStepSet.setSteps(new ArrayList<FlowStep>());
+        }
     }
 
     private void setupObjects() {
@@ -212,9 +226,7 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
             FlowRuleset flowRuleset = this.getRulesetForAction(flowActionSetLast);
             QuestionFragment questionFragment = QuestionFragment.newInstance(flowDefinition,
                     flowActionSetList, flowRuleset, this.hasNextStep(flowRuleset), preferredLanguage, responseButtonRes);
-            questionFragment.setOnQuestionAnsweredListener(this);
-            questionFragment.setFlowFunctionsListener(flowFunctionsListener);
-            questionFragment.setFlowListener(onFlowListener);
+            setupQuestionListeners(questionFragment);
 
             nextStepFragment = questionFragment;
         } else {
@@ -226,6 +238,12 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
                     .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                     .replace(R.id.content, nextStepFragment).commit();
         }
+    }
+
+    private void setupQuestionListeners(QuestionFragment questionFragment) {
+        questionFragment.setOnQuestionAnsweredListener(this);
+        questionFragment.setFlowFunctionsListener(flowFunctionsListener);
+        questionFragment.setFlowListener(onFlowListener);
     }
 
     public void setShowLastMessage(Boolean showLastMessage) {

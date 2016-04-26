@@ -50,6 +50,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private final FlowDefinition flowDefinition;
 
     private OnQuestionAnsweredListener onQuestionAnsweredListener;
+    private RulesetResponse rulesetResponse;
 
     public QuestionAdapter(FlowDefinition flowDefinition, FlowRuleset ruleSet, boolean haveNextStep,
                            CharSequence questionText, String preferredLanguage, int responseButtonRes) {
@@ -217,6 +218,15 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             finishQuestion(hasDestination(rule));
         }
     };
+
+    public RulesetResponse getResponse() {
+        return response;
+    }
+
+    public void setResponse(RulesetResponse response) {
+        this.response = response;
+        notifyDataSetChanged();
+    }
 
     private void finishQuestion(boolean hasDestination) {
         if ((response == null || response.getResponse() == null)) {
