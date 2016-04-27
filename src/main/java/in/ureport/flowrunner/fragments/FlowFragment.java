@@ -339,6 +339,10 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
         this.flowListener = flowListener;
     }
 
+    public FlowDefinition getFlowDefinition() {
+        return flowDefinition;
+    }
+
     @Override
     public Loader<Locale[]> onCreateLoader(int id, Bundle args) {
         return new LocaleLoader(getContext());
@@ -387,6 +391,7 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
             FlowFragment.this.flowListener.onFinishedClick();
         }
     };
+
 
     public interface FlowListener {
         void onFlowLanguageChanged(String iso3Language);
