@@ -10,6 +10,7 @@ import in.ureport.flowrunner.models.FlowDefinition;
 import in.ureport.flowrunner.models.FlowRun;
 import in.ureport.flowrunner.models.FlowStepSet;
 import in.ureport.flowrunner.models.Group;
+import in.ureport.flowrunner.models.ResponseFlowRun;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -26,7 +27,7 @@ import retrofit2.http.Query;
  * Created by gualberto on 6/13/16.
  */
 public interface RapidProEndPoint {
-    static String udoToken = "token 47f75ea3e659563f806ff8d5d2679e25d52f5f85";
+    static String udoToken = "token a5378a9ea57be42596fa5023d80628e5e3d9f6b5";
     @FormUrlEncoded
     @POST("external/received/{channel}/")
     Call<ResponseBody> sendReceivedMessage(@Header("Authorization") String udoToken
@@ -45,7 +46,7 @@ public interface RapidProEndPoint {
             , @Query("page") Integer page, @Query("aliases") Boolean aliases);
 
     @GET("runs.json")
-    Call<List<FlowRun>> listRuns(@Header("Authorization") String udoToken
+    Call<ResponseFlowRun<FlowRun>>  listRuns(@Header("Authorization") String udoToken
             , @Query("contact") String uuid, @Query("after") String after);
 
     @GET("flow_definition.json")

@@ -1,6 +1,7 @@
 package in.ureport.flowrunner.flow;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -11,6 +12,7 @@ import in.ureport.flowrunner.managers.FlowRunnerManager;
 import in.ureport.flowrunner.models.Contact;
 import in.ureport.flowrunner.models.FlowDefinition;
 import in.ureport.flowrunner.models.FlowRun;
+import in.ureport.flowrunner.models.ResponseFlowRun;
 import in.ureport.flowrunner.service.UdoAPI;
 import in.ureport.flowrunner.service.endpoints.RapidProEndPoint;
 import in.ureport.flowrunner.service.services.RapidProServices;
@@ -30,8 +32,9 @@ public class FlowsChecker {
     private String gcmId;
     final RapidProServices rapidProServices = new RapidProServices();
 
-    public FlowsChecker(String gcmId) {
+    public FlowsChecker(String gcmId, FlowsChecker.Listener listener) {
         this.gcmId = gcmId;
+        this.listener = listener;
 
     }
 
@@ -60,11 +63,11 @@ public class FlowsChecker {
         }
     };
 
-    Callback<List<FlowRun>> callbackFlowRun = new Callback<List<FlowRun>>() {
+    Callback<ResponseFlowRun<FlowRun>> callbackFlowRun = new Callback<ResponseFlowRun<FlowRun>>() {
         @Override
-        public void onResponse(Call<List<FlowRun>> call, Response<List<FlowRun>> response) {
-            if (!response.body().isEmpty()) {
-                lastFlowRun = response.body().get(0);
+        public void onResponse(Call<ResponseFlowRun<FlowRun>> call, Response<ResponseFlowRun<FlowRun>> response) {
+            if (!response.body().getResults().isEmpty()) {
+                lastFlowRun = response.body().getResults().get(0);
                 rapidProServices.loadFlowDefinition(lastFlowRun.getFlowUuid(), callbackFlowDefinition);
 
             } else {
@@ -73,7 +76,7 @@ public class FlowsChecker {
         }
 
         @Override
-        public void onFailure(Call<List<FlowRun>> call, Throwable t) {
+        public void onFailure(Call<ResponseFlowRun<FlowRun>> call, Throwable t) {
             listener.finishHasFlows(false, null, new Exception(t.getMessage()));
         }
     };
@@ -82,12 +85,12 @@ public class FlowsChecker {
         @Override
         public void onResponse(Call<FlowDefinition> call, Response<FlowDefinition> response) {
             FlowDefinition flowDefinition = response.body();
-            flowDefinition.setContact(new Contact()); // TODO Ainda vai ter a classe que pega o CONTACT
+            flowDefinition.setContact(contact); // TODO Ainda vai ter a classe que pega o CONTACT
             flowDefinition.setFlowRun(lastFlowRun);
-            if(FlowRunnerManager.isFlowExpired(flowDefinition)){
+            if (!FlowRunnerManager.isFlowExpired(flowDefinition)) {
                 listener.finishHasFlows(true, flowDefinition, null);
-            }else{
-                listener.finishHasFlows(false,null,new Exception("Flow is Expired"));
+            } else {
+                listener.finishHasFlows(false, null, new Exception("Flow is Expired"));
             }
 
         }
@@ -95,6 +98,7 @@ public class FlowsChecker {
         @Override
         public void onFailure(Call<FlowDefinition> call, Throwable t) {
             listener.finishHasFlows(false, null, new Exception(t.getMessage()));
+            t.printStackTrace();
         }
     };
 

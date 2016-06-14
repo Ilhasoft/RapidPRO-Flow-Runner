@@ -13,6 +13,7 @@ import in.ureport.flowrunner.helpers.GsonDateTypeAdapter;
 import in.ureport.flowrunner.models.Contact;
 import in.ureport.flowrunner.models.FlowDefinition;
 import in.ureport.flowrunner.models.FlowRun;
+import in.ureport.flowrunner.models.ResponseFlowRun;
 import in.ureport.flowrunner.service.UdoAPI;
 import in.ureport.flowrunner.service.endpoints.RapidProEndPoint;
 import retrofit2.Call;
@@ -27,12 +28,8 @@ public class RapidProServices {
     private static final String TAG = "RapidProServices";
 
     RapidProEndPoint rapidProEndPoint;
-    private GsonDateTypeAdapter gsonDateTypeAdapter;
+    private GsonDateTypeAdapter gsonDateTypeAdapter = new GsonDateTypeAdapter();
     public RapidProServices() {
-//        this.endpoint = endpoint;
-//        RestAdapter restAdapter = buildRestAdapter();
-//        if(BuildConfig.DEBUG) restAdapter.setLogLevel(RestAdapter.LogLevel.FULL);
-//        service = restAdapter.create(RapidProApi.class);
         UdoAPI udoAPI = new UdoAPI();
         rapidProEndPoint = udoAPI.buildApi(RapidProEndPoint.class);
 
@@ -47,8 +44,8 @@ public class RapidProServices {
 //        return response.getResults();
 //    }
 
-    public void loadRuns(String userUuid, Date after,Callback<List<FlowRun>> callback ) {
-        Call<List<FlowRun>> response = rapidProEndPoint.listRuns(RapidProEndPoint.udoToken, userUuid, gsonDateTypeAdapter.serializeDate(after));
+    public void loadRuns(String userUuid, Date after,Callback<ResponseFlowRun<FlowRun>> callback ) {
+        Call<ResponseFlowRun<FlowRun>> response = rapidProEndPoint.listRuns(RapidProEndPoint.udoToken, userUuid, gsonDateTypeAdapter.serializeDate(after));
         response.enqueue(callback);
     }
 //
@@ -75,9 +72,9 @@ public class RapidProServices {
 //        service.saveFlowStepSet(apiKey, flowStepSet);
 //    }
 //
-//    public Contact saveContact(String apiKey, Contact contact) {
-//        return service.saveContact(apiKey, contact);
-//    }
+    public void saveContact(Contact contact, Callback<Contact> callback) {
+         rapidProEndPoint.saveContact(RapidProEndPoint.udoToken, contact).enqueue(callback);
+    }
 //
 //    private RestAdapter buildRestAdapter() {
 //        gsonDateTypeAdapter = new GsonDateTypeAdapter();

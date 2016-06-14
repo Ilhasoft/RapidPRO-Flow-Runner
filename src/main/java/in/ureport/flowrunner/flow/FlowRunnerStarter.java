@@ -21,7 +21,7 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
     private FlowsChecker flowsChecker;
 
     public FlowRunnerStarter(String gcmId) {
-       flowsChecker = new FlowsChecker(gcmId);
+       flowsChecker = new FlowsChecker(gcmId,this);
     }
 
     public void loadFlows() {
@@ -50,17 +50,19 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
         if (hasFlows) {
             this.flowDefinition = flowDefinition;
             isFlowReady = true;
+            if(listener!=null)
             listener.flowIsReady();
         }else{
+            if(listener!=null)
             listener.flowError(e);
         }
         isRunning = false;
     }
 
     private void addFlowDefinition(final FlowDefinition flowDefinition,FragmentManager supportFragmentManager ) {
-        FlowFragment flowFragment = FlowFragment.newInstance(flowDefinition, "BRA");
-        flowFragment.setFlowListener(this);
-        supportFragmentManager.beginTransaction().add(flowFragment,"flow_fragment").commit();
+//        FlowFragment flowFragment = FlowFragment.newInstance(flowDefinition, flowDefinition.getBaseLanguage());
+//        flowFragment.setFlowListener(this);
+//        flowFragment.show(supportFragmentManager,"flow_fragment");
     }
 
     public boolean isFlowReady() {
