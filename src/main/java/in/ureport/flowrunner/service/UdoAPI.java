@@ -1,6 +1,15 @@
 package in.ureport.flowrunner.service;
 
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.util.Date;
+import java.util.HashMap;
+
+import in.ureport.flowrunner.helpers.GsonDateTypeAdapter;
+import in.ureport.flowrunner.helpers.HashMapTypeAdapter;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -23,10 +32,15 @@ public class UdoAPI {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.addInterceptor(logging);
 
+        Gson gson = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .registerTypeAdapter(Date.class, new GsonDateTypeAdapter())
+                .registerTypeAdapter(HashMap.class, new HashMapTypeAdapter())
+                .create();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(httpClient.build())
+                .addConverterFactory (GsonConverterFactory.create(gson))
                 .build();
 
         return retrofit.create(endPoint);
