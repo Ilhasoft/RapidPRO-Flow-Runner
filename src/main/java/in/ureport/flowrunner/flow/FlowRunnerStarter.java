@@ -1,12 +1,12 @@
 package in.ureport.flowrunner.flow;
 
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 
 import in.ureport.flowrunner.fragments.FlowFragment;
 import in.ureport.flowrunner.models.FlowDefinition;
 import in.ureport.flowrunner.models.FlowRuleset;
 import in.ureport.flowrunner.models.FlowStepSet;
+import in.ureport.flowrunner.tasks.SendFlowResponseTask;
 
 /**
  * Created by gualberto on 6/13/16.
@@ -14,34 +14,49 @@ import in.ureport.flowrunner.models.FlowStepSet;
 public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.FlowListener {
     private FragmentManager supportFragmentManager;
     private String gcmId;
+    private String channel;
     private boolean isFlowReady = false;
     private boolean isRunning = false;
     private FlowDefinition flowDefinition;
-    private Listener listener;
+    private FlowListener flowListener;
     private FlowsChecker flowsChecker;
+    private SendFlowResponseTask sendFlowResponseTask;
 
-    public FlowRunnerStarter(String gcmId) {
-       flowsChecker = new FlowsChecker(gcmId,this);
+    public FlowRunnerStarter(String gcmId, String channel) {
+        this.gcmId = gcmId;
+        flowsChecker = new FlowsChecker(gcmId, this);
+        this.channel = channel;
+        sendFlowResponseTask = new SendFlowResponseTask(channel);
     }
 
     public void loadFlows() {
-        if(!isRunning) {
+        if (!isRunning) {
             isRunning = true;
             flowsChecker.startCheck();
         }
     }
-    public void loadFlows(FlowRunnerStarter.Listener listener) {
-        this.listener = listener;
-        if(!isRunning) {
+
+    public void loadFlows(FlowListener flowListener) {
+        this.flowListener = flowListener;
+        if (!isRunning) {
             isRunning = true;
-            flowsChecker.startCheck(); // TODO Ainda vai ter a classe que pega o CONTACT
+            flowsChecker.startCheck();
         }
     }
-    public void startFlows(FragmentManager supportFragmentManager) throws Exception {
-        if(flowDefinition!=null){
-            addFlowDefinition(flowDefinition,supportFragmentManager);
-        }else{
-            throw new Exception("Flow not loaded");
+
+    public void startFlow(FragmentManager supportFragmentManager) {
+        if (flowDefinition != null) {
+            showFlowDefinition(flowDefinition, supportFragmentManager);
+        }
+    }
+
+    public FlowFragment getFlowFragment() throws Exception {
+        if (flowDefinition != null) {
+            FlowFragment flowFragment = FlowFragment.newInstance(flowDefinition, flowDefinition.getBaseLanguage());
+            flowFragment.setFlowListener(this);
+            return flowFragment;
+        } else {
+            throw new Exception("Flow not ready");
         }
     }
 
@@ -50,19 +65,23 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
         if (hasFlows) {
             this.flowDefinition = flowDefinition;
             isFlowReady = true;
-            if(listener!=null)
-            listener.flowIsReady();
-        }else{
-            if(listener!=null)
-            listener.flowError(e);
+            if (flowListener != null)
+                flowListener.onflowIsReady(FlowFragment.newInstance(flowDefinition, flowDefinition.getBaseLanguage()));
+        } else {
+            if (flowListener != null)
+                flowListener.onflowError(e);
         }
         isRunning = false;
     }
 
-    private void addFlowDefinition(final FlowDefinition flowDefinition,FragmentManager supportFragmentManager ) {
-//        FlowFragment flowFragment = FlowFragment.newInstance(flowDefinition, flowDefinition.getBaseLanguage());
-//        flowFragment.setFlowListener(this);
-//        flowFragment.show(supportFragmentManager,"flow_fragment");
+    private void showFlowDefinition(final FlowDefinition flowDefinition, FragmentManager supportFragmentManager) {
+        FlowFragment flowFragment = FlowFragment.newInstance(flowDefinition, flowDefinition.getBaseLanguage());
+        flowFragment.setFlowListener(this);
+        DialogFlowFragment.newInstance(flowFragment).show(supportFragmentManager, "flow_fragment");
+    }
+
+    public String getGcmId() {
+        return gcmId;
     }
 
     public boolean isFlowReady() {
@@ -79,14 +98,19 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
 
     @Override
     public void onFlowFinished(FlowStepSet stepSet) {
+        sendFlowResponseTask.sendFlowStepSet(stepSet,gcmId);
+        flowDefinition = null;
+        isFlowReady = false;
+
     }
 
     @Override
     public void onFinishedClick() {
     }
 
-    public interface Listener{
-        void flowIsReady();
-        void flowError(Exception e);
+    public interface FlowListener {
+        void onflowIsReady(FlowFragment flowFragment);
+
+        void onflowError(Exception e);
     }
 }

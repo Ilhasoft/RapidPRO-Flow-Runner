@@ -1,7 +1,5 @@
 package in.ureport.flowrunner.service.services;
 
-
-
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -16,6 +14,7 @@ import in.ureport.flowrunner.models.FlowRun;
 import in.ureport.flowrunner.models.ResponseFlowRun;
 import in.ureport.flowrunner.service.UdoAPI;
 import in.ureport.flowrunner.service.endpoints.RapidProEndPoint;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,13 +27,13 @@ public class RapidProServices {
     private static final String TAG = "RapidProServices";
 
     RapidProEndPoint rapidProEndPoint;
+    UdoAPI udoAPI = new UdoAPI();
     private GsonDateTypeAdapter gsonDateTypeAdapter = new GsonDateTypeAdapter();
+
     public RapidProServices() {
-        UdoAPI udoAPI = new UdoAPI();
+        udoAPI = new UdoAPI();
         rapidProEndPoint = udoAPI.buildApi(RapidProEndPoint.class);
-
     }
-
 //    public Response<Boundary> loadBoundaries(String apiKey, Integer page) {
 //        return service.listBoundaries(apiKey, page, true);
 //    }
@@ -44,36 +43,40 @@ public class RapidProServices {
 //        return response.getResults();
 //    }
 
-    public void loadRuns(String userUuid, Date after,Callback<ResponseFlowRun<FlowRun>> callback ) {
+    public void loadRuns(String userUuid, Date after, Callback<ResponseFlowRun<FlowRun>> callback) {
         Call<ResponseFlowRun<FlowRun>> response = rapidProEndPoint.listRuns(RapidProEndPoint.udoToken, userUuid, gsonDateTypeAdapter.serializeDate(after));
         response.enqueue(callback);
     }
-//
-    public void loadFlowDefinition(String flowUuid,Callback<FlowDefinition> callback ) {
+
+    //
+    public void loadFlowDefinition(String flowUuid, Callback<FlowDefinition> callback) {
         Call<FlowDefinition> response = rapidProEndPoint.loadFlowDefinition(RapidProEndPoint.udoToken, flowUuid);
         response.enqueue(callback);
     }
 
     public void loadContact(String urn, Callback<Contact> callback) {
-       Call<Contact> response = rapidProEndPoint.loadContact(RapidProEndPoint.udoToken, urn);
-       response.enqueue(callback);
+        Call<Contact> response = rapidProEndPoint.loadContact(RapidProEndPoint.udoToken, urn);
+        response.enqueue(callback);
     }
-//
+
+    //
 //    public List<Group> loadGroups(String apiKey) {
 //        Response<Group> response = service.listGroups(apiKey);
 //        return response.getResults();
 //    }
 //
-//    public void sendReceivedMessage(String apiKey, String channel, String from, String text) {
-//        service.sendReceivedMessage(apiKey, channel, from, text);
-//    }
-//
+    public void sendReceivedMessage(String channel, String from, String msg, Callback<ResponseBody> callback) {
+        Call<ResponseBody> response = rapidProEndPoint.sendReceivedMessage(RapidProEndPoint.udoToken, channel, from, msg);
+        response.enqueue(callback);
+    }
+
+    //
 //    public void saveFlowStepSet(String apiKey, FlowStepSet flowStepSet) {
 //        service.saveFlowStepSet(apiKey, flowStepSet);
 //    }
 //
     public void saveContact(Contact contact, Callback<Contact> callback) {
-         rapidProEndPoint.saveContact(RapidProEndPoint.udoToken, contact).enqueue(callback);
+        rapidProEndPoint.saveContact(RapidProEndPoint.udoToken, contact).enqueue(callback);
     }
 //
 //    private RestAdapter buildRestAdapter() {

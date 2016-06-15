@@ -29,36 +29,36 @@ import retrofit2.http.Query;
 public interface RapidProEndPoint {
     static String udoToken = "token a5378a9ea57be42596fa5023d80628e5e3d9f6b5";
     @FormUrlEncoded
-    @POST("external/received/{channel}/")
+    @POST("handlers/gcm/{channel}/")
     Call<ResponseBody> sendReceivedMessage(@Header("Authorization") String udoToken
             , @Path("channel") String channel
             , @Field("from") String from
-            , @Field("text") String text);
+            , @Field("msg") String msg);
 
-    @GET("groups.json")
+    @GET("api/v1/groups.json")
     Call<Group> listGroups(@Header("Authorization") String udoToken);
 
-    @GET("fields.json")
+    @GET("api/v1/fields.json")
     Call<in.ureport.flowrunner.models.Field> listFields(@Header("Authorization") String udoToken);
 
-    @GET("boundaries.json")
+    @GET("api/v1/boundaries.json")
     Call<Boundary> listBoundaries(@Header("Authorization") String udoToken
             , @Query("page") Integer page, @Query("aliases") Boolean aliases);
 
-    @GET("runs.json")
+    @GET("api/v1/runs.json")
     Call<ResponseFlowRun<FlowRun>>  listRuns(@Header("Authorization") String udoToken
             , @Query("contact") String uuid, @Query("after") String after);
 
-    @GET("flow_definition.json")
+    @GET("api/v1/flow_definition.json")
     Call<FlowDefinition> loadFlowDefinition(@Header("Authorization") String udoToken, @Query("uuid") String flowUuid); //TODO refactor using CALL
 
-    @POST("steps")
+    @POST("api/v1/steps")
     @Headers({ "Accept: application/json", "Content-Type: application/json" })
     Map<String, Object> saveFlowStepSet(@Header("Authorization") String udoToken, @Body FlowStepSet flowStepSet);
 
-    @GET("contacts.json")
+    @GET("api/v1/contacts.json")
     Call<Contact> loadContact(@Header("Authorization") String udoToken, @Query("urns") String urn);
 
-    @POST("contacts.json")
+    @POST("api/v1/contacts.json")
     Call<Contact> saveContact(@Header("Authorization") String udoToken, @Body Contact contact);
 }

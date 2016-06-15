@@ -43,11 +43,15 @@ public class FlowsChecker {
     }
 
     public void getContact(String gcmId) {
-        rapidProServices.loadContact(gcmId, callbackLoadContact);
+        rapidProServices.loadContact("gcm:" + gcmId, callbackLoadContact);
     }
 
     public void hasFlows() {
         rapidProServices.loadRuns(contact.getUuid(), getMinimumDate(), callbackFlowRun);
+    }
+
+    public Contact getContactLoaded(){
+        return this.contact;
     }
 
     Callback<Contact> callbackLoadContact = new Callback<Contact>() {
@@ -87,10 +91,11 @@ public class FlowsChecker {
             FlowDefinition flowDefinition = response.body();
             flowDefinition.setContact(contact); // TODO Ainda vai ter a classe que pega o CONTACT
             flowDefinition.setFlowRun(lastFlowRun);
-            if (!FlowRunnerManager.isFlowExpired(flowDefinition)) {
+
+            if (FlowRunnerManager.isFlowActive(flowDefinition)) {
                 listener.finishHasFlows(true, flowDefinition, null);
             } else {
-                listener.finishHasFlows(false, null, new Exception("Flow is Expired"));
+                listener.finishHasFlows(false, null, new Exception("Flow is not Active"));
             }
 
         }
@@ -98,7 +103,6 @@ public class FlowsChecker {
         @Override
         public void onFailure(Call<FlowDefinition> call, Throwable t) {
             listener.finishHasFlows(false, null, new Exception(t.getMessage()));
-            t.printStackTrace();
         }
     };
 
