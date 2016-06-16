@@ -25,18 +25,18 @@ public class UdoIntentService extends GcmListenerService {
     public void onMessageReceived(String from, Bundle data) {
         String message = data.getString("message");
         String type = data.getString("type");
-       if(type.equals("rapidpro")) {
-           Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-           NotificationCompat.Builder mBuilder =
-                   new NotificationCompat.Builder(getApplicationContext())
-                           .setSmallIcon(R.drawable.img_button_play)
-                           .setContentTitle(message)
-                           .setContentText(getApplicationContext().getText(R.string.new_flow))
-                           .setSound(alarmSound)
-                           .setAutoCancel(true);
-           NotificationManager mNotificationManager =
-                   (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-           mNotificationManager.notify(81723469, mBuilder.build());
-       }
+        if (type.equals("Rapidpro")) {
+            Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(getApplicationContext())
+                            .setSmallIcon(R.drawable.img_button_play)
+                            .setContentTitle(message)
+                            .setContentText(getApplicationContext().getText(R.string.new_flow))
+                            .setSound(alarmSound)
+                            .setAutoCancel(true);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(81723469, mBuilder.build());
+        }
     }
 }
