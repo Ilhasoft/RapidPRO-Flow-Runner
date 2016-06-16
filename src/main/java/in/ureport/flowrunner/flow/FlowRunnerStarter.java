@@ -1,7 +1,11 @@
 package in.ureport.flowrunner.flow;
 
+import android.app.DialogFragment;
+import android.content.Context;
+import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 
+import in.ureport.flowrunner.fragments.DialogFlowFragment;
 import in.ureport.flowrunner.fragments.FlowFragment;
 import in.ureport.flowrunner.models.FlowDefinition;
 import in.ureport.flowrunner.models.FlowRuleset;
@@ -21,6 +25,8 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
     private FlowListener flowListener;
     private FlowsChecker flowsChecker;
     private SendFlowResponseTask sendFlowResponseTask;
+    private DialogFlowFragment dialogFlowFragment;
+    private final Handler handler = new Handler();
 
     public FlowRunnerStarter(String gcmId, String channel) {
         this.gcmId = gcmId;
@@ -77,7 +83,8 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
     private void showFlowDefinition(final FlowDefinition flowDefinition, FragmentManager supportFragmentManager) {
         FlowFragment flowFragment = FlowFragment.newInstance(flowDefinition, flowDefinition.getBaseLanguage());
         flowFragment.setFlowListener(this);
-        DialogFlowFragment.newInstance(flowFragment).show(supportFragmentManager, "flow_fragment");
+        dialogFlowFragment = DialogFlowFragment.newInstance(flowFragment);
+        dialogFlowFragment.show(supportFragmentManager, "flow_fragment");
     }
 
     public String getGcmId() {
@@ -98,10 +105,9 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
 
     @Override
     public void onFlowFinished(FlowStepSet stepSet) {
-        sendFlowResponseTask.sendFlowStepSet(stepSet,gcmId);
+        sendFlowResponseTask.sendFlowStepSet(stepSet, gcmId);
         flowDefinition = null;
         isFlowReady = false;
-
     }
 
     @Override

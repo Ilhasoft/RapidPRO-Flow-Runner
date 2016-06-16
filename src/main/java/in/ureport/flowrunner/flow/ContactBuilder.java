@@ -15,9 +15,11 @@ import retrofit2.Response;
  */
 public class ContactBuilder {
     private Contact contact;
+    Callback<Contact> contactCallback;
 
-    public ContactBuilder() {
+    public ContactBuilder(Callback<Contact> contactCallback) {
         contact = new Contact();
+        this.contactCallback = contactCallback;
     }
 
     public ContactBuilder setGcmId(final String gcmId) {
@@ -44,15 +46,6 @@ public class ContactBuilder {
 
     public void saveContact(){
         RapidProServices rapidProServices = new RapidProServices();
-        rapidProServices.saveContact(contact, new Callback<Contact>() {
-            @Override
-            public void onResponse(Call<Contact> call, Response<Contact> response) {
-
-            }
-
-            @Override
-            public void onFailure(Call<Contact> call, Throwable t) {
-            }
-        });
+        rapidProServices.saveContact(contact, contactCallback);
     }
 }
