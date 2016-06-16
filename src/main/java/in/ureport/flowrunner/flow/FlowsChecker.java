@@ -50,7 +50,7 @@ public class FlowsChecker {
         rapidProServices.loadRuns(contact.getUuid(), getMinimumDate(), callbackFlowRun);
     }
 
-    public Contact getContactLoaded(){
+    public Contact getContactLoaded() {
         return this.contact;
     }
 
@@ -70,11 +70,15 @@ public class FlowsChecker {
     Callback<ResponseFlowRun<FlowRun>> callbackFlowRun = new Callback<ResponseFlowRun<FlowRun>>() {
         @Override
         public void onResponse(Call<ResponseFlowRun<FlowRun>> call, Response<ResponseFlowRun<FlowRun>> response) {
-            if (!response.body().getResults().isEmpty()) {
-                lastFlowRun = response.body().getResults().get(0);
-                rapidProServices.loadFlowDefinition(lastFlowRun.getFlowUuid(), callbackFlowDefinition);
+            if(response.body()!=null) {
+                if (!response.body().getResults().isEmpty()) {
+                    lastFlowRun = response.body().getResults().get(0);
+                    rapidProServices.loadFlowDefinition(lastFlowRun.getFlowUuid(), callbackFlowDefinition);
 
-            } else {
+                } else {
+                    listener.finishHasFlows(false, null, new Exception("Response of FlowRuns isEmpty"));
+                }
+            }else{
                 listener.finishHasFlows(false, null, new Exception("Response of FlowRuns isEmpty"));
             }
         }
@@ -89,13 +93,16 @@ public class FlowsChecker {
         @Override
         public void onResponse(Call<FlowDefinition> call, Response<FlowDefinition> response) {
             FlowDefinition flowDefinition = response.body();
-            flowDefinition.setContact(contact); // TODO Ainda vai ter a classe que pega o CONTACT
-            flowDefinition.setFlowRun(lastFlowRun);
-
-            if (FlowRunnerManager.isFlowActive(flowDefinition)) {
-                listener.finishHasFlows(true, flowDefinition, null);
+            if (flowDefinition != null) {
+                flowDefinition.setContact(contact);
+                flowDefinition.setFlowRun(lastFlowRun);
+                if (FlowRunnerManager.isFlowActive(flowDefinition)) {
+                    listener.finishHasFlows(true, flowDefinition, null);
+                } else {
+                    listener.finishHasFlows(false, null, new Exception("Flow is not Active"));
+                }
             } else {
-                listener.finishHasFlows(false, null, new Exception("Flow is not Active"));
+                listener.finishHasFlows(false, null, new Exception("Response of FlowDefinitions is empty"));
             }
 
         }

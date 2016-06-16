@@ -27,6 +27,7 @@ public class UdoIntentService extends GcmListenerService {
 
     @Override
     public void onMessageReceived(String from, Bundle data) {
+        String title = data.getString("gcm.notification.title");
         String message = data.getString("message");
         String type = data.getString("type");
         String packageName = getApplicationContext().getPackageName();
@@ -38,8 +39,8 @@ public class UdoIntentService extends GcmListenerService {
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(getApplicationContext())
                             .setSmallIcon(getApplicationInfo().icon)
-                            .setContentTitle(message)
-                            .setContentText(getApplicationContext().getText(R.string.new_flow))
+                            .setContentTitle(title)
+                            .setContentText(message)
                             .setSound(alarmSound)
                             .setAutoCancel(true);
             mBuilder.setContentIntent(pContentIntent);
@@ -49,18 +50,3 @@ public class UdoIntentService extends GcmListenerService {
         }
     }
 }
-//
-//    protected int getSmallIconId(Context context, Intent intent) {
-//        ApplicationInfo info = getApplicationInfo();
-//        info.i
-//        Bundle metaData = info.metaData;
-//        if (metaData != null) {
-//            String appPackageName=...; //use getPackageName() in case you wish to use yours
-//            final PackageManager pm=getPackageManager();
-//            final ApplicationInfo applicationInfo=pm.getApplicationInfo(packageName,PackageManager.GET_META_DATA);
-//            final Resources resources=packageManager.getResourcesForApplication(applicationInfo);
-//
-//        }
-//        return 1;
-//    }
-//}
