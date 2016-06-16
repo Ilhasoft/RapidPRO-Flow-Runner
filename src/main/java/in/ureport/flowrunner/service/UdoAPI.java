@@ -19,7 +19,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by gualberto on 6/13/16.
  */
 public class UdoAPI {
-    private static final String BASE = "https://udo.ilhasoft.mobi/api/v1/";
+    private static final String BASE = "https://udo.ilhasoft.mobi/";
 
     public UdoAPI() {
 
@@ -40,9 +40,11 @@ public class UdoAPI {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE)
+                .client(httpClient.build())
                 .addConverterFactory (GsonConverterFactory.create(gson))
                 .build();
 
         return retrofit.create(endPoint);
     }
+
 }
