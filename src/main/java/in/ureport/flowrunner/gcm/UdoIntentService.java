@@ -3,6 +3,7 @@ package in.ureport.flowrunner.gcm;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -25,6 +26,10 @@ public class UdoIntentService extends GcmListenerService {
     public void onMessageReceived(String from, Bundle data) {
         String message = data.getString("message");
         String type = data.getString("type");
+        String packageName = getApplicationContext().getPackageName();
+        Intent launchIntent = getApplicationContext().getPackageManager().getLaunchIntentForPackage(packageName);
+
+        PendingIntent pContentIntent = PendingIntent.getActivity(getApplicationContext(), 873459238,launchIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         if (type.equals("Rapidpro")) {
             Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             NotificationCompat.Builder mBuilder =
@@ -34,9 +39,11 @@ public class UdoIntentService extends GcmListenerService {
                             .setContentText(getApplicationContext().getText(R.string.new_flow))
                             .setSound(alarmSound)
                             .setAutoCancel(true);
+            mBuilder.setContentIntent(pContentIntent);
             NotificationManager mNotificationManager =
                     (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(81723469, mBuilder.build());
+
         }
     }
 }
