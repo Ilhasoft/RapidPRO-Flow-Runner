@@ -25,7 +25,7 @@ import retrofit2.Response;
 public class RapidProServices {
 
     private static final String TAG = "RapidProServices";
-
+    public static String udoToken = "token a5378a9ea57be42596fa5023d80628e5e3d9f6b5";
     RapidProEndPoint rapidProEndPoint;
     UdoAPI udoAPI = new UdoAPI();
     private GsonDateTypeAdapter gsonDateTypeAdapter = new GsonDateTypeAdapter();
@@ -34,73 +34,34 @@ public class RapidProServices {
         udoAPI = new UdoAPI();
         rapidProEndPoint = udoAPI.buildApi(RapidProEndPoint.class);
     }
-//    public Response<Boundary> loadBoundaries(String apiKey, Integer page) {
-//        return service.listBoundaries(apiKey, page, true);
-//    }
-//
-//    public List<Field> loadFields(String apiKey) {
-//        Response<Field> response = service.listFields(apiKey);
-//        return response.getResults();
-//    }
 
     public void loadRuns(String userUuid, Date after, Callback<ResponseFlowRun<FlowRun>> callback) {
-        Call<ResponseFlowRun<FlowRun>> response = rapidProEndPoint.listRuns(RapidProEndPoint.udoToken, userUuid, gsonDateTypeAdapter.serializeDate(after));
+        Call<ResponseFlowRun<FlowRun>> response = rapidProEndPoint.listRuns(udoToken, userUuid, gsonDateTypeAdapter.serializeDate(after));
         response.enqueue(callback);
     }
 
-    //
     public void loadFlowDefinition(String flowUuid, Callback<FlowDefinition> callback) {
-        Call<FlowDefinition> response = rapidProEndPoint.loadFlowDefinition(RapidProEndPoint.udoToken, flowUuid);
+        Call<FlowDefinition> response = rapidProEndPoint.loadFlowDefinition(udoToken, flowUuid);
         response.enqueue(callback);
     }
 
     public void loadContact(String urn, Callback<Contact> callback) {
-        Call<Contact> response = rapidProEndPoint.loadContact(RapidProEndPoint.udoToken, urn);
+        Call<Contact> response = rapidProEndPoint.loadContact(udoToken, urn);
         response.enqueue(callback);
     }
 
-    //
-//    public List<Group> loadGroups(String apiKey) {
-//        Response<Group> response = service.listGroups(apiKey);
-//        return response.getResults();
-//    }
-//
     public void sendReceivedMessage(String channel, String from, String msg, Callback<ResponseBody> callback) {
-        Call<ResponseBody> response = rapidProEndPoint.sendReceivedMessage(RapidProEndPoint.udoToken, channel, from, msg);
+        Call<ResponseBody> response = rapidProEndPoint.sendReceivedMessage(udoToken, channel, from, msg);
         response.enqueue(callback);
     }
 
-    //
-//    public void saveFlowStepSet(String apiKey, FlowStepSet flowStepSet) {
-//        service.saveFlowStepSet(apiKey, flowStepSet);
-//    }
-//
     public void saveContact(Contact contact, Callback<Contact> callback) {
-        rapidProEndPoint.saveContact(RapidProEndPoint.udoToken, contact).enqueue(callback);
+        rapidProEndPoint.saveContact(udoToken, contact).enqueue(callback);
     }
-//
-//    private RestAdapter buildRestAdapter() {
-//        gsonDateTypeAdapter = new GsonDateTypeAdapter();
-//
-//        Gson gson = new GsonBuilder()
-//                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-//                .registerTypeAdapter(Date.class, gsonDateTypeAdapter)
-//                .registerTypeAdapter(HashMap.class, new HashMapTypeAdapter())
-//                .create();
-//
-//        return new RestAdapter.Builder()
-//                .setEndpoint(endpoint)
-//                .setConverter(new GsonConverter(gson))
-//                .build();
-//    }
-//
-//    private String getRapidproUserId(String userId) {
-//        return userId.replace(":", "").replace("-", "");
-//    }
 
     public void addUpdateContact(Contact contact) {
         UdoAPI udoApi = new UdoAPI();
-        udoApi.buildApi(RapidProEndPoint.class).saveContact(RapidProEndPoint.udoToken, contact).enqueue(new Callback<Contact>() {
+        udoApi.buildApi(RapidProEndPoint.class).saveContact(udoToken, contact).enqueue(new Callback<Contact>() {
             @Override
             public void onResponse(Call<Contact> call, Response<Contact> response) {
                 Contact contactResponse = response.body();

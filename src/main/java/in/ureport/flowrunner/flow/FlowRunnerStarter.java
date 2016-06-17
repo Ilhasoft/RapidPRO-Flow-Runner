@@ -10,6 +10,7 @@ import in.ureport.flowrunner.fragments.FlowFragment;
 import in.ureport.flowrunner.models.FlowDefinition;
 import in.ureport.flowrunner.models.FlowRuleset;
 import in.ureport.flowrunner.models.FlowStepSet;
+import in.ureport.flowrunner.service.services.RapidProServices;
 import in.ureport.flowrunner.tasks.SendFlowResponseTask;
 
 /**
@@ -28,11 +29,12 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
     private DialogFlowFragment dialogFlowFragment;
     private final Handler handler = new Handler();
 
-    public FlowRunnerStarter(String gcmId, String channel) {
+    public FlowRunnerStarter(String gcmId, String channel, String udoToken) {
         this.gcmId = gcmId;
         flowsChecker = new FlowsChecker(gcmId, this);
         this.channel = channel;
         sendFlowResponseTask = new SendFlowResponseTask(channel);
+        RapidProServices.udoToken = udoToken;
     }
 
     public void loadFlows() {

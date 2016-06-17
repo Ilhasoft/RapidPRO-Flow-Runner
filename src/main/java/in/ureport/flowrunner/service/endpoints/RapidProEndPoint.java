@@ -27,7 +27,7 @@ import retrofit2.http.Query;
  * Created by gualberto on 6/13/16.
  */
 public interface RapidProEndPoint {
-    static String udoToken = "token a5378a9ea57be42596fa5023d80628e5e3d9f6b5";
+
     @FormUrlEncoded
     @POST("handlers/gcm/{channel}/")
     Call<ResponseBody> sendReceivedMessage(@Header("Authorization") String udoToken
