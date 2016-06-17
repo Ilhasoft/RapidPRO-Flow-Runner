@@ -31,8 +31,8 @@ public class UdoIntentService extends GcmListenerService {
         String message = data.getString("message");
         String type = data.getString("type");
         String packageName = getApplicationContext().getPackageName();
-        Intent launchIntent = getApplicationContext().getPackageManager().getLaunchIntentForPackage(packageName);
-        PendingIntent pContentIntent = PendingIntent.getActivity(getApplicationContext(), 873459238, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent launchIntent = getApplicationContext().getPackageManager().getLaunchIntentForPackage(packageName).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent pContentIntent = PendingIntent.getActivity(getApplicationContext(), 873459238, launchIntent, PendingIntent.FLAG_ONE_SHOT);
         if (type.equals("Rapidpro")) {
             ApplicationInfo info = getApplicationInfo();
             Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -44,9 +44,14 @@ public class UdoIntentService extends GcmListenerService {
                             .setSound(alarmSound)
                             .setAutoCancel(true);
             mBuilder.setContentIntent(pContentIntent);
-            NotificationManager mNotificationManager =
-                    (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.notify(81723469, mBuilder.build());
+            onCreateLocalNotication(mBuilder);
         }
+    }
+
+    public void onCreateLocalNotication(NotificationCompat.Builder mBuilder) {
+        NotificationManager mNotificationManager =
+                (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(81723469, mBuilder.build());
+
     }
 }
