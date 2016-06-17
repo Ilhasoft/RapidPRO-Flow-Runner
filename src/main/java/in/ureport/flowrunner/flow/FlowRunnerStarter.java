@@ -2,6 +2,7 @@ package in.ureport.flowrunner.flow;
 
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 
@@ -27,6 +28,7 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
     private FlowsChecker flowsChecker;
     private SendFlowResponseTask sendFlowResponseTask;
     private DialogFlowFragment dialogFlowFragment;
+    private DialogListener dialogListener;
     private final Handler handler = new Handler();
 
     public FlowRunnerStarter(String gcmId, String channel, String udoToken) {
@@ -52,8 +54,9 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
         }
     }
 
-    public void startFlow(FragmentManager supportFragmentManager) {
+    public void startFlow(FragmentManager supportFragmentManager, DialogListener dialogListener) {
         if (flowDefinition != null) {
+            this.dialogListener = dialogListener;
             showFlowDefinition(flowDefinition, supportFragmentManager);
         }
     }
@@ -110,6 +113,9 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
         sendFlowResponseTask.sendFlowStepSet(stepSet, gcmId);
         flowDefinition = null;
         isFlowReady = false;
+        if (dialogListener != null) {
+            dialogListener.onFlowFinished();
+        }
     }
 
     @Override
@@ -120,5 +126,9 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
         void onflowIsReady(FlowFragment flowFragment);
 
         void onflowError(Exception e);
+    }
+
+    public interface DialogListener {
+        void onFlowFinished();
     }
 }

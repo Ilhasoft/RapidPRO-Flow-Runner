@@ -31,7 +31,8 @@ public class UdoIntentService extends GcmListenerService {
         String message = data.getString("message");
         String type = data.getString("type");
         String packageName = getApplicationContext().getPackageName();
-        Intent launchIntent = getApplicationContext().getPackageManager().getLaunchIntentForPackage(packageName).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent launchIntent = getApplicationContext().getPackageManager().getLaunchIntentForPackage(packageName)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent pContentIntent = PendingIntent.getActivity(getApplicationContext(), 873459238, launchIntent, PendingIntent.FLAG_ONE_SHOT);
         if (type.equals("Rapidpro")) {
             ApplicationInfo info = getApplicationInfo();
