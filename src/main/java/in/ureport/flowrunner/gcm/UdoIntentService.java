@@ -49,7 +49,6 @@ public class UdoIntentService extends GcmListenerService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext())
                         .setSmallIcon(getApplicationInfo().icon)
-                        .setLargeIcon(BitmapFactory.decodeResource(getResources(),getApplicationInfo().icon))
                         .setContentTitle(title)
                         .setContentText(message)
                         .setSound(alarmSound)

@@ -15,7 +15,6 @@ import in.ureport.flowrunner.R;
  * Created by johncordeiro on 09/11/15.
  */
 public class InfoFragment extends Fragment {
-    private static final String EXTRA_RESPONSE_BUTTON = "responseButton";
     private onDialogClickExit onDialogClickExit;
     private int responseButtonRes;
     @Nullable
@@ -37,7 +36,7 @@ public class InfoFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         LayoutInflater layoutInflater = LayoutInflater.from(getContext());
         Button button = (Button) layoutInflater.inflate(responseButtonRes, null);
-        button.setText(R.string.label_finish);
+        button.setText(R.string.label_ok);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
