@@ -55,6 +55,7 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
     private FlowStepSet flowStepSet;
 
     private FlowListener flowListener;
+    private InfoFragment.onDialogClickExit onDialogClickExit;
     private Locale[] availableLocales;
 
     private String preferredLanguage;
@@ -72,6 +73,18 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
         args.putParcelable(EXTRA_FLOW_DEFINITION, flowDefinition);
         FlowFragment fragment = new FlowFragment();
         fragment.setArguments(args);
+        return fragment;
+    }
+    public static FlowFragment newInstance(FlowDefinition flowDefinition, String language,
+                                           @LayoutRes int responseButtonRes,InfoFragment.onDialogClickExit onDialogClickExit) {
+        FlowFragment fragment = newInstance(flowDefinition,language,responseButtonRes);
+        fragment.setOnDialogClickExit(onDialogClickExit);
+        return fragment;
+    }
+
+    public static FlowFragment newInstance(FlowDefinition flowDefinition, String language,InfoFragment.onDialogClickExit onDialogClickExit) {
+        FlowFragment fragment = FlowFragment.newInstance(flowDefinition, language, R.layout.item_respond_flow_question);
+        fragment.setOnDialogClickExit(onDialogClickExit);
         return fragment;
     }
 
@@ -214,7 +227,8 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
             setupQuestionListeners(questionFragment);
             nextStepFragment = questionFragment;
         } else {
-            nextStepFragment = new InfoFragment();
+            InfoFragment infoFragment = InfoFragment.newInstance(onDialogClickExit,responseButtonRes);
+            nextStepFragment = infoFragment;
         }
         if (this.isAdded()) {
             this.getChildFragmentManager().beginTransaction()
@@ -315,6 +329,7 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
         }
         return null;
     }
+    public void setOnDialogClickExit(InfoFragment.onDialogClickExit onDialogClickExit) {this.onDialogClickExit = onDialogClickExit;}
 
     public void setFlowListener(FlowListener flowListener) {
         this.flowListener = flowListener;

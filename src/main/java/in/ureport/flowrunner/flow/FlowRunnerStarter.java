@@ -4,10 +4,12 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
+import android.support.annotation.LayoutRes;
 import android.support.v4.app.FragmentManager;
 
 import in.ureport.flowrunner.fragments.DialogFlowFragment;
 import in.ureport.flowrunner.fragments.FlowFragment;
+import in.ureport.flowrunner.fragments.InfoFragment;
 import in.ureport.flowrunner.models.FlowDefinition;
 import in.ureport.flowrunner.models.FlowRuleset;
 import in.ureport.flowrunner.models.FlowStepSet;
@@ -21,15 +23,18 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
     private FragmentManager supportFragmentManager;
     private String gcmId;
     private String channel;
+    private @LayoutRes int responseButtonRes = -1;
+
     private boolean isFlowReady = false;
     private boolean isRunning = false;
+
     private FlowDefinition flowDefinition;
     private FlowListener flowListener;
     private FlowsChecker flowsChecker;
+
     private SendFlowResponseTask sendFlowResponseTask;
     private DialogFlowFragment dialogFlowFragment;
     private DialogListener dialogListener;
-    private final Handler handler = new Handler();
 
     public FlowRunnerStarter(String gcmId, String channel, String udoToken) {
         this.gcmId = gcmId;
@@ -86,15 +91,18 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
     }
 
     private void showFlowDefinition(final FlowDefinition flowDefinition, FragmentManager supportFragmentManager) {
-        FlowFragment flowFragment = FlowFragment.newInstance(flowDefinition, flowDefinition.getBaseLanguage());
+        FlowFragment flowFragment;
+        if(responseButtonRes == -1) {
+            flowFragment = FlowFragment.newInstance(flowDefinition, flowDefinition.getBaseLanguage(), onDialogClickExit);
+        }else{
+            flowFragment = FlowFragment.newInstance(flowDefinition, flowDefinition.getBaseLanguage(),responseButtonRes ,onDialogClickExit);
+        }
         flowFragment.setFlowListener(this);
         dialogFlowFragment = DialogFlowFragment.newInstance(flowFragment);
         dialogFlowFragment.show(supportFragmentManager, "flow_fragment");
     }
 
-    public String getGcmId() {
-        return gcmId;
-    }
+    public void setResponseButtonRes(int responseButtonRes) {this.responseButtonRes = responseButtonRes;}
 
     public boolean isFlowReady() {
         return isFlowReady;
@@ -131,4 +139,11 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
     public interface DialogListener {
         void onFlowFinished();
     }
+
+    InfoFragment.onDialogClickExit onDialogClickExit = new InfoFragment.onDialogClickExit() {
+        @Override
+        public void onClickExit() {
+            dialogFlowFragment.dismiss();
+        }
+    };
 }
