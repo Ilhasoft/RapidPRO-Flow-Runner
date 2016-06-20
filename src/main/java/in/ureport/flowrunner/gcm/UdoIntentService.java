@@ -5,12 +5,15 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
 import com.google.android.gms.gcm.GcmListenerService;
+
+import in.ureport.flowrunner.R;
 
 /**
  * Created by redmine on 5/30/16.
@@ -46,12 +49,13 @@ public class UdoIntentService extends GcmListenerService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext())
                         .setSmallIcon(getApplicationInfo().icon)
+                        .setLargeIcon(BitmapFactory.decodeResource(getResources(),getApplicationInfo().icon))
                         .setContentTitle(title)
                         .setContentText(message)
                         .setSound(alarmSound)
                         .setAutoCancel(true);
         mBuilder.setContentIntent(createLaunchPendingIntent());
-
+        onCreateLocalNotication(mBuilder);
     }
 
     private PendingIntent createLaunchPendingIntent() {
