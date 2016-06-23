@@ -17,6 +17,7 @@ import in.ureport.flowrunner.R;
 public class InfoFragment extends Fragment {
     private onDialogClickExit onDialogClickExit;
     private int responseButtonRes;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -34,21 +35,19 @@ public class InfoFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-        Button button = (Button) layoutInflater.inflate(responseButtonRes, null);
-        button.setText(R.string.label_ok);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onDialogClickExit == null) {
-                    getFragmentManager().beginTransaction().remove(InfoFragment.this).commit();
-                } else {
+        if (onDialogClickExit != null) {
+            LayoutInflater layoutInflater = LayoutInflater.from(getContext());
+            Button button = (Button) layoutInflater.inflate(responseButtonRes, null);
+            button.setText(R.string.label_ok);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     onDialogClickExit.onClickExit();
                 }
-            }
-        });
-        LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.linear_layout);
-        linearLayout.addView(button);
+            });
+            LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.linear_layout);
+            linearLayout.addView(button);
+        }
     }
 
     public void setResponseButtonRes(int responseButtonRes) {

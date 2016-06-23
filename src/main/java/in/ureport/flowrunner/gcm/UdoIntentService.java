@@ -51,6 +51,8 @@ public class UdoIntentService extends GcmListenerService {
                         .setSmallIcon(getApplicationInfo().icon)
                         .setContentTitle(title)
                         .setContentText(message)
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                                .bigText(message))
                         .setSound(alarmSound)
                         .setAutoCancel(true);
         mBuilder.setContentIntent(createLaunchPendingIntent());

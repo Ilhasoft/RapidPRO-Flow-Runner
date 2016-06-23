@@ -65,7 +65,11 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
             showFlowDefinition(flowDefinition, supportFragmentManager);
         }
     }
-
+    public void startFlow(FragmentManager supportFragmentManager) {
+        if (flowDefinition != null) {
+            showFlowDefinition(flowDefinition, supportFragmentManager);
+        }
+    }
     public FlowFragment getFlowFragment() throws Exception {
         if (flowDefinition != null) {
             FlowFragment flowFragment = FlowFragment.newInstance(flowDefinition, flowDefinition.getBaseLanguage());

@@ -229,6 +229,9 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
         } else {
             InfoFragment infoFragment = InfoFragment.newInstance(onDialogClickExit,responseButtonRes);
             nextStepFragment = infoFragment;
+            if(onDialogClickExit!=null){
+                onDialogClickExit.onClickExit();
+            }
         }
         if (this.isAdded()) {
             this.getChildFragmentManager().beginTransaction()
