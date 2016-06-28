@@ -47,7 +47,7 @@ public class ContactBuilder {
     }
 
     public void saveContact(Callback<Contact> contactCallback) {
-        RapidProServices rapidProServices = new RapidProServices();
-        rapidProServices.saveContact(contact, contactCallback);
+        RapidProServices rapidProServices = new RapidProServices(FlowRunnerStarter.token);
+        rapidProServices.saveContact(contact).enqueue(contactCallback);
     }
 }

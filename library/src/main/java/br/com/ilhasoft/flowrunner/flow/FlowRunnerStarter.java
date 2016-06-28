@@ -16,7 +16,9 @@ import br.com.ilhasoft.flowrunner.tasks.SendFlowResponseTask;
  * Created by gualberto on 6/13/16.
  */
 public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.FlowListener {
-    private FragmentManager supportFragmentManager;
+
+    public static String token;
+
     private String gcmId;
     private String channel;
     private @LayoutRes int responseButtonRes = -1;
@@ -28,23 +30,18 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
     private FlowListener flowListener;
     private FlowsChecker flowsChecker;
 
-    private SendFlowResponseTask sendFlowResponseTask;
     private DialogFlowFragment dialogFlowFragment;
     private DialogListener dialogListener;
 
-    public FlowRunnerStarter(String gcmId, String channel, String udoToken) {
+    public FlowRunnerStarter(String gcmId, String channel, String token) {
         this.gcmId = gcmId;
-        flowsChecker = new FlowsChecker(gcmId, this);
+        this.flowsChecker = new FlowsChecker(gcmId, this);
         this.channel = channel;
-        sendFlowResponseTask = new SendFlowResponseTask(channel);
-        RapidProServices.udoToken = udoToken;
+        FlowRunnerStarter.token = token;
     }
 
     public void loadFlows() {
-        if (!isRunning) {
-            isRunning = true;
-            flowsChecker.startCheck();
-        }
+        loadFlows(null);
     }
 
     public void loadFlows(FlowListener flowListener) {
@@ -61,11 +58,11 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
             showFlowDefinition(flowDefinition, supportFragmentManager);
         }
     }
+
     public void startFlow(FragmentManager supportFragmentManager) {
-        if (flowDefinition != null) {
-            showFlowDefinition(flowDefinition, supportFragmentManager);
-        }
+        startFlow(supportFragmentManager, null);
     }
+
     public FlowFragment getFlowFragment() throws Exception {
         if (flowDefinition != null) {
             FlowFragment flowFragment = FlowFragment.newInstance(flowDefinition, flowDefinition.getBaseLanguage());
@@ -82,10 +79,10 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
             this.flowDefinition = flowDefinition;
             isFlowReady = true;
             if (flowListener != null)
-                flowListener.onflowIsReady(FlowFragment.newInstance(flowDefinition, flowDefinition.getBaseLanguage()));
+                flowListener.onFlowReady(FlowFragment.newInstance(flowDefinition, flowDefinition.getBaseLanguage()));
         } else {
             if (flowListener != null)
-                flowListener.onflowError(e);
+                flowListener.onError(e);
         }
         isRunning = false;
     }
@@ -109,16 +106,16 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
     }
 
     @Override
-    public void onFlowLanguageChanged(String iso3Language) {
-    }
+    public void onFlowLanguageChanged(String iso3Language) {}
 
     @Override
-    public void onFlowResponse(FlowRuleset ruleset) {
-    }
+    public void onFlowResponse(FlowRuleset ruleset) {}
 
     @Override
     public void onFlowFinished(FlowStepSet stepSet) {
+        SendFlowResponseTask sendFlowResponseTask = new SendFlowResponseTask(channel);
         sendFlowResponseTask.sendFlowStepSet(stepSet, gcmId);
+
         flowDefinition = null;
         isFlowReady = false;
         if (dialogListener != null) {
@@ -127,20 +124,18 @@ public class FlowRunnerStarter implements FlowsChecker.Listener, FlowFragment.Fl
     }
 
     @Override
-    public void onFinishedClick() {
-    }
+    public void onFinishedClick() {}
 
     public interface FlowListener {
-        void onflowIsReady(FlowFragment flowFragment);
-
-        void onflowError(Exception e);
+        void onFlowReady(FlowFragment flowFragment);
+        void onError(Exception exception);
     }
 
     public interface DialogListener {
         void onFlowFinished();
     }
 
-    InfoFragment.onDialogClickExit onDialogClickExit = new InfoFragment.onDialogClickExit() {
+    private InfoFragment.onDialogClickExit onDialogClickExit = new InfoFragment.onDialogClickExit() {
         @Override
         public void onClickExit() {
             dialogFlowFragment.dismiss();

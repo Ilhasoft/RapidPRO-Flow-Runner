@@ -28,13 +28,13 @@ public class MainActivity extends AppCompatActivity {
                     , "token ae3dd7849a97fbd57c1520aa77085e5b9514acdb");
             starter.loadFlows(new FlowRunnerStarter.FlowListener() {
                 @Override
-                public void onflowIsReady(FlowFragment flowFragment) {
-                    Log.d(TAG, "onflowIsReady() called with: " + "flowFragment = [" + flowFragment + "]");
+                public void onFlowReady(FlowFragment flowFragment) {
+                    Log.d(TAG, "onFlowReady() called with: " + "flowFragment = [" + flowFragment + "]");
                 }
 
                 @Override
-                public void onflowError(Exception e) {
-                    Log.d(TAG, "onflowError() called with: " + "e = [" + e + "]");
+                public void onError(Exception exception) {
+                    Log.d(TAG, "onError() called with: " + "e = [" + exception + "]");
                 }
             });
         } catch(Exception exception) {

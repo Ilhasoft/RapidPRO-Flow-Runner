@@ -2,6 +2,7 @@ package br.com.ilhasoft.flowrunner.tasks;
 
 import android.os.Handler;
 
+import br.com.ilhasoft.flowrunner.flow.FlowRunnerStarter;
 import br.com.ilhasoft.flowrunner.models.FlowAction;
 import br.com.ilhasoft.flowrunner.models.FlowStep;
 import br.com.ilhasoft.flowrunner.models.FlowStepSet;
@@ -20,7 +21,7 @@ public class SendFlowResponseTask {
     private final Handler handler = new Handler();
 
     public SendFlowResponseTask(String channel) {
-        rapidProServices = new RapidProServices();
+        rapidProServices = new RapidProServices(FlowRunnerStarter.token);
         this.channel = channel;
     }
 
@@ -29,7 +30,7 @@ public class SendFlowResponseTask {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    rapidProServices.sendReceivedMessage(channel, gcmId, getMessageFromStep(flowStep), new Callback<ResponseBody>() {
+                    rapidProServices.sendReceivedMessage(channel, gcmId, getMessageFromStep(flowStep)).enqueue(new Callback<ResponseBody>() {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                             call.isCanceled();

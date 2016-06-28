@@ -20,17 +20,21 @@ import retrofit2.Response;
  */
 public class FlowsChecker {
     private static final int EARLY_MONTHS = 1;
-    private Listener listener;
     private static String TAG = "FlowsChecker";
+
     private FlowRun lastFlowRun;
     private Contact contact;
+
     private String gcmId;
-    final RapidProServices rapidProServices = new RapidProServices();
+
+    private final RapidProServices rapidProServices;
+
+    private Listener listener;
 
     public FlowsChecker(String gcmId, FlowsChecker.Listener listener) {
         this.gcmId = gcmId;
         this.listener = listener;
-
+        rapidProServices = new RapidProServices(FlowRunnerStarter.token);
     }
 
     public void startCheck() {
@@ -38,11 +42,11 @@ public class FlowsChecker {
     }
 
     public void getContact(String gcmId) {
-        rapidProServices.loadContact("gcm:" + gcmId, callbackLoadContact);
+        rapidProServices.loadContact("gcm:" + gcmId).enqueue(callbackLoadContact);
     }
 
     public void hasFlows() {
-        rapidProServices.loadRuns(contact.getUuid(), getMinimumDate(), callbackFlowRun);
+        rapidProServices.loadRuns(contact.getUuid(), getMinimumDate()).enqueue(callbackFlowRun);
     }
 
     public Contact getContactLoaded() {
@@ -68,7 +72,7 @@ public class FlowsChecker {
             if(response.body()!=null) {
                 if (!response.body().getResults().isEmpty()) {
                     lastFlowRun = response.body().getResults().get(0);
-                    rapidProServices.loadFlowDefinition(lastFlowRun.getFlowUuid(), callbackFlowDefinition);
+                    rapidProServices.loadFlowDefinition(lastFlowRun.getFlowUuid()).enqueue(callbackFlowDefinition);
 
                 } else {
                     listener.finishHasFlows(false, null, new Exception("Response of FlowRuns isEmpty"));

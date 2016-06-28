@@ -11,45 +11,40 @@ import br.com.ilhasoft.flowrunner.service.UdoAPI;
 import br.com.ilhasoft.flowrunner.service.endpoints.RapidProEndPoint;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.Callback;
 
 /**
  * Created by gualberto on 6/13/16.
  */
 public class RapidProServices {
 
-    public static String udoToken = "token a5378a9ea57be42596fa5023d80628e5e3d9f6b5";
-
+    private final String token;
     private final RapidProEndPoint rapidProEndPoint;
     private final GsonDateTypeAdapter gsonDateTypeAdapter;
 
-    public RapidProServices() {
+    public RapidProServices(String token) {
+        this.token = token;
         rapidProEndPoint = UdoAPI.buildApi(RapidProEndPoint.class);
         gsonDateTypeAdapter = new GsonDateTypeAdapter();
     }
 
-    public void loadRuns(String userUuid, Date after, Callback<ResponseFlowRun<FlowRun>> callback) {
-        Call<ResponseFlowRun<FlowRun>> response = rapidProEndPoint.listRuns(udoToken, userUuid, gsonDateTypeAdapter.serializeDate(after));
-        response.enqueue(callback);
+    public Call<ResponseFlowRun<FlowRun>> loadRuns(String userUuid, Date after) {
+        return rapidProEndPoint.listRuns(token, userUuid, gsonDateTypeAdapter.serializeDate(after));
     }
 
-    public void loadFlowDefinition(String flowUuid, Callback<FlowDefinition> callback) {
-        Call<FlowDefinition> response = rapidProEndPoint.loadFlowDefinition(udoToken, flowUuid);
-        response.enqueue(callback);
+    public Call<FlowDefinition> loadFlowDefinition(String flowUuid) {
+        return rapidProEndPoint.loadFlowDefinition(token, flowUuid);
     }
 
-    public void loadContact(String urn, Callback<Contact> callback) {
-        Call<Contact> response = rapidProEndPoint.loadContact(udoToken, urn);
-        response.enqueue(callback);
+    public Call<Contact> loadContact(String urn) {
+        return rapidProEndPoint.loadContact(token, urn);
     }
 
-    public void sendReceivedMessage(String channel, String from, String msg, Callback<ResponseBody> callback) {
-        Call<ResponseBody> response = rapidProEndPoint.sendReceivedMessage(udoToken, channel, from, msg);
-        response.enqueue(callback);
+    public Call<ResponseBody> sendReceivedMessage(String channel, String from, String msg) {
+        return rapidProEndPoint.sendReceivedMessage(token, channel, from, msg);
     }
 
-    public void saveContact(Contact contact, Callback<Contact> callback) {
-        rapidProEndPoint.saveContact(udoToken, contact).enqueue(callback);
+    public Call<Contact> saveContact(Contact contact) {
+        return rapidProEndPoint.saveContact(token, contact);
     }
 
 }
