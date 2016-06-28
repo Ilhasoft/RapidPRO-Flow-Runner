@@ -22,7 +22,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import br.com.ilhasoft.support.core.helpers.KeyboardHelper;
 import in.ureport.flowrunner.R;
 import in.ureport.flowrunner.loaders.LocaleLoader;
 import in.ureport.flowrunner.managers.FlowRunnerManager;
@@ -34,6 +33,7 @@ import in.ureport.flowrunner.models.FlowRuleset;
 import in.ureport.flowrunner.models.FlowStep;
 import in.ureport.flowrunner.models.FlowStepSet;
 import in.ureport.flowrunner.models.RulesetResponse;
+import in.ureport.flowrunner.util.KeyboardHelper;
 import in.ureport.flowrunner.views.adapters.QuestionAdapter;
 
 /**
