@@ -1,7 +1,5 @@
 package br.com.ilhasoft.flowrunner.service.services;
 
-import android.util.Log;
-
 import java.util.Date;
 
 import br.com.ilhasoft.flowrunner.helpers.GsonDateTypeAdapter;
@@ -14,22 +12,20 @@ import br.com.ilhasoft.flowrunner.service.endpoints.RapidProEndPoint;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * Created by gualberto on 6/13/16.
  */
 public class RapidProServices {
 
-    private static final String TAG = "RapidProServices";
     public static String udoToken = "token a5378a9ea57be42596fa5023d80628e5e3d9f6b5";
-    RapidProEndPoint rapidProEndPoint;
-    UdoAPI udoAPI = new UdoAPI();
-    private GsonDateTypeAdapter gsonDateTypeAdapter = new GsonDateTypeAdapter();
+
+    private final RapidProEndPoint rapidProEndPoint;
+    private final GsonDateTypeAdapter gsonDateTypeAdapter;
 
     public RapidProServices() {
-        udoAPI = new UdoAPI();
-        rapidProEndPoint = udoAPI.buildApi(RapidProEndPoint.class);
+        rapidProEndPoint = UdoAPI.buildApi(RapidProEndPoint.class);
+        gsonDateTypeAdapter = new GsonDateTypeAdapter();
     }
 
     public void loadRuns(String userUuid, Date after, Callback<ResponseFlowRun<FlowRun>> callback) {
@@ -54,22 +50,6 @@ public class RapidProServices {
 
     public void saveContact(Contact contact, Callback<Contact> callback) {
         rapidProEndPoint.saveContact(udoToken, contact).enqueue(callback);
-    }
-
-    public void addUpdateContact(Contact contact) {
-        UdoAPI udoApi = new UdoAPI();
-        udoApi.buildApi(RapidProEndPoint.class).saveContact(udoToken, contact).enqueue(new Callback<Contact>() {
-            @Override
-            public void onResponse(Call<Contact> call, Response<Contact> response) {
-                Contact contactResponse = response.body();
-                Log.d(TAG, "onResponse() called with: " + "call = [" + call + "], response = [" + response + "]");
-            }
-
-            @Override
-            public void onFailure(Call<Contact> call, Throwable t) {
-                Log.d(TAG, "onFailure() called with: " + "call = [" + call + "], t = [" + t + "]");
-            }
-        });
     }
 
 }

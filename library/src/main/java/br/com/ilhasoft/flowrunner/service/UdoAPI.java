@@ -1,6 +1,5 @@
 package br.com.ilhasoft.flowrunner.service;
 
-
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -19,13 +18,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by gualberto on 6/13/16.
  */
 public class UdoAPI {
+
     private static final String BASE = "https://udo.ilhasoft.mobi/";
 
-    public UdoAPI() {
-
-    }
-
-    public <T> T buildApi (Class<T> endPoint) {
+    public static <T> T buildApi (Class<T> endPoint) {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
