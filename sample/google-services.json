@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "781485145931",
+    "project_id": "melhore-relacionamentos"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:781485145931:android:1a762d7a005479fb",
+        "android_client_info": {
+          "package_name": "com.ilhasoft.relationships"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC984-fdiynJtP0fws-l8_OfSB4MUDOICU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
