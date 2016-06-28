@@ -13,22 +13,22 @@ import java.util.Date;
  */
 public class Message {
 
-    public static final String DIRECTION_INCOMING = "incoming";
-    public static final String DIRECTION_OUTGOING = "outgoing";
+    public static final String DIRECTION_INCOMING = "in";
+    public static final String DIRECTION_OUTGOING = "out";
 
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({DIRECTION_INCOMING, DIRECTION_OUTGOING})
     public @interface Direction{}
 
-    private String id;
+    private Integer id;
 
-    private String broadcast;
+    private Integer channel;
+
+    private Integer broadcast;
 
     private Contact contact;
 
     private String urn;
-
-    private String channel;
 
     @Direction
     private String direction;
@@ -51,20 +51,29 @@ public class Message {
 
     private FlowRuleset ruleset;
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public Message setId(String id) {
+    public Message setId(Integer id) {
         this.id = id;
         return this;
     }
 
-    public String getBroadcast() {
+    public Integer getChannel() {
+        return channel;
+    }
+
+    public Message setChannel(Integer channel) {
+        this.channel = channel;
+        return this;
+    }
+
+    public Integer getBroadcast() {
         return broadcast;
     }
 
-    public Message setBroadcast(String broadcast) {
+    public Message setBroadcast(Integer broadcast) {
         this.broadcast = broadcast;
         return this;
     }
@@ -84,15 +93,6 @@ public class Message {
 
     public Message setUrn(String urn) {
         this.urn = urn;
-        return this;
-    }
-
-    public String getChannel() {
-        return channel;
-    }
-
-    public Message setChannel(String channel) {
-        this.channel = channel;
         return this;
     }
 
