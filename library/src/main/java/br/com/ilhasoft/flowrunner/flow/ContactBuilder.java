@@ -46,8 +46,8 @@ public class ContactBuilder {
         return this;
     }
 
-    public Call<Contact> saveContact() {
-        RapidProServices rapidProServices = new RapidProServices(FlowRunnerStarter.token);
+    public Call<Contact> saveContact(String token) {
+        RapidProServices rapidProServices = new RapidProServices(token);
         return rapidProServices.saveContact(contact);
     }
 }
