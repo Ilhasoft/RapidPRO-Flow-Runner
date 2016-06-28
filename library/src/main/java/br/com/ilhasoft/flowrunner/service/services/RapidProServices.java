@@ -1,12 +1,14 @@
 package br.com.ilhasoft.flowrunner.service.services;
 
 import java.util.Date;
+import java.util.List;
 
 import br.com.ilhasoft.flowrunner.helpers.GsonDateTypeAdapter;
 import br.com.ilhasoft.flowrunner.models.Contact;
 import br.com.ilhasoft.flowrunner.models.FlowDefinition;
 import br.com.ilhasoft.flowrunner.models.FlowRun;
-import br.com.ilhasoft.flowrunner.models.ResponseFlowRun;
+import br.com.ilhasoft.flowrunner.models.Message;
+import br.com.ilhasoft.flowrunner.models.ApiResponse;
 import br.com.ilhasoft.flowrunner.service.UdoAPI;
 import br.com.ilhasoft.flowrunner.service.endpoints.RapidProEndPoint;
 import okhttp3.ResponseBody;
@@ -27,7 +29,7 @@ public class RapidProServices {
         gsonDateTypeAdapter = new GsonDateTypeAdapter();
     }
 
-    public Call<ResponseFlowRun<FlowRun>> loadRuns(String userUuid, Date after) {
+    public Call<ApiResponse<FlowRun>> loadRuns(String userUuid, Date after) {
         return rapidProEndPoint.listRuns(token, userUuid, gsonDateTypeAdapter.serializeDate(after));
     }
 
@@ -45,6 +47,10 @@ public class RapidProServices {
 
     public Call<Contact> saveContact(Contact contact) {
         return rapidProEndPoint.saveContact(token, contact);
+    }
+
+    public Call<ApiResponse<Message>> loadMessages(String contactUuid) {
+        return rapidProEndPoint.listMessages(token, contactUuid);
     }
 
 }

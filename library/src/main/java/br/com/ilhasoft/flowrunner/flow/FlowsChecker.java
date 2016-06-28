@@ -9,7 +9,7 @@ import br.com.ilhasoft.flowrunner.managers.FlowRunnerManager;
 import br.com.ilhasoft.flowrunner.models.Contact;
 import br.com.ilhasoft.flowrunner.models.FlowDefinition;
 import br.com.ilhasoft.flowrunner.models.FlowRun;
-import br.com.ilhasoft.flowrunner.models.ResponseFlowRun;
+import br.com.ilhasoft.flowrunner.models.ApiResponse;
 import br.com.ilhasoft.flowrunner.service.services.RapidProServices;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -66,9 +66,9 @@ public class FlowsChecker {
         }
     };
 
-    Callback<ResponseFlowRun<FlowRun>> callbackFlowRun = new Callback<ResponseFlowRun<FlowRun>>() {
+    Callback<ApiResponse<FlowRun>> callbackFlowRun = new Callback<ApiResponse<FlowRun>>() {
         @Override
-        public void onResponse(Call<ResponseFlowRun<FlowRun>> call, Response<ResponseFlowRun<FlowRun>> response) {
+        public void onResponse(Call<ApiResponse<FlowRun>> call, Response<ApiResponse<FlowRun>> response) {
             if(response.body()!=null) {
                 if (!response.body().getResults().isEmpty()) {
                     lastFlowRun = response.body().getResults().get(0);
@@ -83,7 +83,7 @@ public class FlowsChecker {
         }
 
         @Override
-        public void onFailure(Call<ResponseFlowRun<FlowRun>> call, Throwable t) {
+        public void onFailure(Call<ApiResponse<FlowRun>> call, Throwable t) {
             listener.finishHasFlows(false, null, new Exception(t.getMessage()));
         }
     };

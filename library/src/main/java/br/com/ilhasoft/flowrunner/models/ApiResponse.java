@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by gualberto on 6/14/16.
  */
-public class ResponseFlowRun<T> {
+public class ApiResponse<T> {
 
     private Integer count;
 
