@@ -6,7 +6,7 @@ import java.util.List;
 
 import br.com.ilhasoft.flowrunner.models.Contact;
 import br.com.ilhasoft.flowrunner.service.services.RapidProServices;
-import retrofit2.Callback;
+import retrofit2.Call;
 
 /**
  * Created by gualberto on 6/14/16.
@@ -46,8 +46,8 @@ public class ContactBuilder {
         return this;
     }
 
-    public void saveContact(Callback<Contact> contactCallback) {
+    public Call<Contact> saveContact() {
         RapidProServices rapidProServices = new RapidProServices(FlowRunnerStarter.token);
-        rapidProServices.saveContact(contact).enqueue(contactCallback);
+        return rapidProServices.saveContact(contact);
     }
 }
