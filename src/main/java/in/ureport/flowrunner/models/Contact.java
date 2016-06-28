@@ -18,6 +18,8 @@ public class Contact implements Parcelable {
 
     private String language;
 
+    private String email;
+
     private List<String> groups;
 
     private List<String> urns;
@@ -92,12 +94,22 @@ public class Contact implements Parcelable {
         this.phone = phone;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+
     @Override
     public String toString() {
         return "Contact{" +
                 "name='" + name + '\'' +
                 ", language='" + language + '\'' +
                 ", groups=" + groups +
+                ", email=" + email +
                 ", urns=" + urns +
                 ", fields=" + fields +
                 ", modified_on=" + modified_on +
@@ -120,6 +132,7 @@ public class Contact implements Parcelable {
         dest.writeSerializable(this.fields);
         dest.writeLong(modified_on != null ? modified_on.getTime() : -1);
         dest.writeString(this.phone);
+        dest.writeString(this.email);
     }
 
     public Contact() {
@@ -135,6 +148,7 @@ public class Contact implements Parcelable {
         long tmpModified_on = in.readLong();
         this.modified_on = tmpModified_on == -1 ? null : new Date(tmpModified_on);
         this.phone = in.readString();
+        this.email = in.readString();
     }
 
     public static final Creator<Contact> CREATOR = new Creator<Contact>() {

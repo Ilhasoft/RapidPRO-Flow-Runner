@@ -14,5 +14,8 @@
     <string name="label_finish_message">Poll completed successfully!</string>
     <string name="message_title_languages">Change flow language:</string>
     <string name="title_change_language">Switch language</string>
+    <string name="no_flow_runs">Response of FlowRuns is Empty</string>
+    <string name="new_flow">Temos uma nova enquete para você</string>
+    <string name="label_ok">Ok</string>
 
 </resources>

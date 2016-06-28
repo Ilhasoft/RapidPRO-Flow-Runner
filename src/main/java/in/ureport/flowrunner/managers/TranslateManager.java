@@ -41,11 +41,13 @@ public class TranslateManager {
     }
 
     private static String translateCustomFields(Contact contact, String message) throws Exception {
-        Set<String> fieldKeys = contact.getFields().keySet();
-        for (String fieldKey : fieldKeys) {
-            Object value = contact.getFields().get(fieldKey);
-            message = message.replaceAll(String.format(CONTACT_FIELD, fieldKey)
-                    , getValueForObject(value));
+        if (contact.getFields() != null) {
+            Set<String> fieldKeys = contact.getFields().keySet();
+            for (String fieldKey : fieldKeys) {
+                Object value = contact.getFields().get(fieldKey);
+                message = message.replaceAll(String.format(CONTACT_FIELD, fieldKey)
+                        , getValueForObject(value));
+            }
         }
         return message;
     }
