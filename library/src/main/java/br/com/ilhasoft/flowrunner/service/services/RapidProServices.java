@@ -53,4 +53,8 @@ public class RapidProServices {
         return rapidProEndPoint.listMessages(token, contactUuid);
     }
 
+    public Call<ApiResponse<Message>> loadMessageById(Integer messageId) {
+        return rapidProEndPoint.listMessageById(token, messageId);
+    }
+
 }

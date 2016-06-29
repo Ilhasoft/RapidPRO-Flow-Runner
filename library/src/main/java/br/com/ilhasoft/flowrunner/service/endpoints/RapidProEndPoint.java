@@ -48,6 +48,9 @@ public interface RapidProEndPoint {
     @GET("api/v2/messages.json")
     Call<ApiResponse<Message>> listMessages(@Header("Authorization") String token, @Query("contact") String contactUuid);
 
+    @GET("api/v2/messages.json")
+    Call<ApiResponse<Message>> listMessageById(@Header("Authorization") String token, @Query("id") Integer messageId);
+
     @GET("api/v1/runs.json")
     Call<ApiResponse<FlowRun>>  listRuns(@Header("Authorization") String token
             , @Query("contact") String uuid, @Query("after") String after);
