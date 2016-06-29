@@ -7,6 +7,7 @@ import com.google.gson.annotations.SerializedName;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by johncordeiro on 01/09/15.
@@ -41,7 +42,7 @@ public class Message {
 
     private String text;
 
-    private String labels;
+    private List<Label> labels;
 
     @SerializedName("created_on")
     private Date createdOn;
@@ -142,11 +143,11 @@ public class Message {
         return this;
     }
 
-    public String getLabels() {
+    public List<Label> getLabels() {
         return labels;
     }
 
-    public Message setLabels(String labels) {
+    public Message setLabels(List<Label> labels) {
         this.labels = labels;
         return this;
     }
