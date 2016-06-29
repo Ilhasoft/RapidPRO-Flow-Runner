@@ -22,7 +22,7 @@ public class Message {
 
     private Integer id;
 
-    private Integer channel;
+    private Channel channel;
 
     private Integer broadcast;
 
@@ -60,11 +60,11 @@ public class Message {
         return this;
     }
 
-    public Integer getChannel() {
+    public Channel getChannel() {
         return channel;
     }
 
-    public Message setChannel(Integer channel) {
+    public Message setChannel(Channel channel) {
         this.channel = channel;
         return this;
     }
