@@ -11,30 +11,36 @@ import android.support.v4.app.NotificationCompat;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
-import br.com.ilhasoft.flowrunner.R;
-
 /**
  * Created by redmine on 5/30/16.
  */
 public class UdoIntentService extends GcmListenerService {
+
     private static final String TAG = "UdoIntentService";
+
     public static String NotificationUDO = "notification_udo";
+
     private String title;
     private String type;
     private String message;
     private String packageName;
+
     private Uri alarmSound;
 
     @Override
     public void onMessageReceived(String from, Bundle data) {
         title = data.getString("gcm.notification.title");
-        message = data.getString("message");
+        message = handleNotificationMessage(data.getString("message"));
         type = data.getString("type");
         packageName = getApplicationContext().getPackageName();
         alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         if (type.equals("Rapidpro")) {
-            showLocalNotication();
+            showLocalNotification();
         }
+    }
+
+    public String handleNotificationMessage(String message) {
+        return message;
     }
 
     public void onCreateLocalNotication(NotificationCompat.Builder mBuilder) {
@@ -43,7 +49,7 @@ public class UdoIntentService extends GcmListenerService {
         mNotificationManager.notify(81723469, mBuilder.build());
     }
 
-    private void showLocalNotication() {
+    private void showLocalNotification() {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext())
                         .setSmallIcon(getApplicationInfo().icon)
