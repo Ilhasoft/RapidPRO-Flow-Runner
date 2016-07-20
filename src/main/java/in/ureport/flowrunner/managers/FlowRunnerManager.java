@@ -41,8 +41,12 @@ public class FlowRunnerManager {
     }
 
     public static boolean validateResponse(FlowDefinition flowDefinition, RulesetResponse response) {
-        TypeValidation typeValidation = TypeValidation.getTypeValidationForRule(response.getRule());
-        return ValidationFactory.getInstance(typeValidation).validate(flowDefinition, response);
+        return validateResponseForRule(flowDefinition, response, response.getRule());
+    }
+
+    public static boolean validateResponseForRule(FlowDefinition flowDefinition, RulesetResponse response, FlowRule rule) {
+        TypeValidation typeValidation = TypeValidation.getTypeValidationForRule(rule);
+        return ValidationFactory.getInstance(typeValidation).validate(flowDefinition, response, rule);
     }
 
     public static boolean isFlowActive(FlowDefinition flowDefinition) {
