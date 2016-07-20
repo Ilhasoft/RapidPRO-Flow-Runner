@@ -162,16 +162,16 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
         addFlowStep(currentActionSet, response);
 
         FlowActionSet nextActionSet = getFlowActionSetByUuid(response.getRule().getDestination());
-        if (flowListener != null && FlowRunnerManager.isLastActionSet(nextActionSet))
-            flowListener.onFlowFinished(flowStepSet);
-
         moveToQuestionDelayed(nextActionSet);
+//        if (flowListener != null && FlowRunnerManager.isLastActionSet(nextActionSet))
+//            flowListener.onFlowFinished(flowStepSet);
     }
 
     @Override
     public void onQuestionFinished() {
-        if (flowListener != null)
-            flowListener.onFinishedClick();
+        if (flowListener != null) {
+            flowListener.onFlowFinished(flowStepSet);
+        }
 
         if (showLastMessage) {
             moveToQuestionDelayed(null);
@@ -255,7 +255,8 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
             List<FlowRule> rules = flowRuleset.getRules();
             for (FlowRule flowRule : rules) {
                 if (!FlowRunnerManager.hasRecursiveDestination(flowDefinition, flowRuleset, flowRule)
-                        && this.haveAnyReplyAction(flowRule.getDestination()))
+                && FlowRunnerManager.isWaitMessageRulesetType(flowRuleset)
+                && this.haveAnyReplyAction(flowRule.getDestination()))
                     return true;
             }
         }
@@ -386,10 +387,6 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
         public void onFlowFinished(FlowStepSet stepSet) {
             FlowFragment.this.flowListener.onFlowFinished(stepSet);
         }
-        @Override
-        public void onFinishedClick() {
-            FlowFragment.this.flowListener.onFinishedClick();
-        }
     };
 
 
@@ -397,7 +394,6 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
         void onFlowLanguageChanged(String iso3Language);
         void onFlowResponse(FlowRuleset ruleset);
         void onFlowFinished(FlowStepSet stepSet);
-        void onFinishedClick();
     }
 
     interface FlowFunctionsListener {

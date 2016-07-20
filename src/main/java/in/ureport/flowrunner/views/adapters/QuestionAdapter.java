@@ -130,7 +130,8 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public int getItemViewType(int position) {
         if (isItemType(position)) {
             FlowRule rule = ruleSet.getRules().get(position - 1);
-            if (FlowRunnerManager.hasRecursiveDestination(flowDefinition, ruleSet, rule))
+            if (FlowRunnerManager.hasRecursiveDestination(flowDefinition, ruleSet, rule)
+            || !FlowRunnerManager.isWaitMessageRulesetType(ruleSet))
                 return TYPE_HIDE;
             return getTypeValidationByRule(rule).getType().ordinal();
         } else if (position == 0)

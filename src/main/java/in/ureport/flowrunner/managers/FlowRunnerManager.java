@@ -20,6 +20,8 @@ import in.ureport.flowrunner.validations.ValidationFactory;
  */
 public class FlowRunnerManager {
 
+    public static final String RULESET_TYPE_WAIT_MESSAGE = "wait_message";
+
     public static int getInputTypeByType(Type type) {
         switch (type) {
             case Date:
@@ -71,6 +73,10 @@ public class FlowRunnerManager {
                 && actionSet.getDestination().equals(ruleSet.getUuid());
         }
         return false;
+    }
+
+    public static boolean isWaitMessageRulesetType(FlowRuleset ruleSet) {
+        return ruleSet.getRulesetType() != null && ruleSet.getRulesetType().equals(RULESET_TYPE_WAIT_MESSAGE);
     }
 
     public static FlowActionSet getFlowActionSetByUuid(FlowDefinition flowDefinition, String destination) {
