@@ -16,6 +16,8 @@ public class Contact implements Parcelable {
 
     private String name;
 
+    private String email;
+
     private String language;
 
     private List<String> groups;
@@ -42,6 +44,14 @@ public class Contact implements Parcelable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getLanguage() {
