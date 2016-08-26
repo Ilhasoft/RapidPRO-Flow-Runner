@@ -1,6 +1,7 @@
 package br.com.ilhasoft.flowrunner.service.endpoints;
 
 
+import java.util.List;
 import java.util.Map;
 
 import br.com.ilhasoft.flowrunner.models.Boundary;
@@ -64,6 +65,9 @@ public interface RapidProEndPoint {
 
     @GET("api/v1/contacts.json")
     Call<Contact> loadContact(@Header("Authorization") String token, @Query("urns") String urn);
+
+    @GET("api/v1/contacts.json")
+    Call<ApiResponse<Contact>> loadContacts(@Header("Authorization") String token, @Query("urns") String urn);
 
     @POST("api/v1/contacts.json")
     Call<Contact> saveContact(@Header("Authorization") String token, @Body Contact contact);

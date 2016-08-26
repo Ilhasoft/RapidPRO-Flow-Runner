@@ -41,6 +41,10 @@ public class RapidProServices {
         return rapidProEndPoint.loadContact(token, urn);
     }
 
+    public Call<ApiResponse<Contact>> loadContacts(String urn) {
+        return rapidProEndPoint.loadContacts(token, urn);
+    }
+
     public Call<ResponseBody> sendReceivedMessage(String channel, String from, String msg) {
         return rapidProEndPoint.sendReceivedMessage(token, channel, from, msg);
     }
