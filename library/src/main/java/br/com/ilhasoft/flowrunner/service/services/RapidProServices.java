@@ -41,7 +41,7 @@ public class RapidProServices {
         return rapidProEndPoint.loadContact(token, urn);
     }
 
-    public Call<ApiResponse<Contact>> loadContacts(String urn) {
+    public Call<ApiResponse<Contact>> loadContactsByUrn(String urn) {
         return rapidProEndPoint.loadContacts(token, urn);
     }
 
