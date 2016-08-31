@@ -8,6 +8,8 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
@@ -17,11 +19,11 @@ import com.google.android.gms.gcm.GcmListenerService;
 public class UdoIntentService extends GcmListenerService {
 
     private static final String TAG = "UdoIntentService";
+    private static final String EXTRA_TYPE = "Rapidpro";
 
     public static String NotificationUDO = "notification_udo";
 
     private String title;
-    private String type;
     private String message;
     private String packageName;
 
@@ -29,13 +31,18 @@ public class UdoIntentService extends GcmListenerService {
 
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        title = data.getString("gcm.notification.title");
-        message = handleNotificationMessage(data.getString("message"));
-        type = data.getString("type");
-        packageName = getApplicationContext().getPackageName();
-        alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        if (type.equals("Rapidpro")) {
-            showLocalNotification();
+        try {
+            String type = data.getString("type");
+            if (!TextUtils.isEmpty(type) && type.equals(EXTRA_TYPE)) {
+                title = data.getString("gcm.notification.title");
+                message = handleNotificationMessage(data.getString("message"));
+                packageName = getApplicationContext().getPackageName();
+                alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+                showLocalNotification();
+            }
+        } catch (Exception exception) {
+            Log.e(TAG, "onMessageReceived: ", exception);
         }
     }
 
