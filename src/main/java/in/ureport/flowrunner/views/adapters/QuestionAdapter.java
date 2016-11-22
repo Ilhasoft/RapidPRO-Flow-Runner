@@ -130,8 +130,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public int getItemViewType(int position) {
         if (isItemType(position)) {
             FlowRule rule = ruleSet.getRules().get(position - 1);
-            if (FlowRunnerManager.hasRecursiveDestination(flowDefinition, ruleSet, rule)
-            || !FlowRunnerManager.isWaitMessageRulesetType(ruleSet)) {
+            if (!FlowRunnerManager.isResponsableRule(flowDefinition, ruleSet, rule)) {
                 return TYPE_HIDE;
             } else if (isNumericMultipleOptions()) {
                 return getViewTypeForMultipleOpenFields(position);
@@ -143,6 +142,8 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         else
             return TYPE_RESPOND;
     }
+
+
 
     private int getViewTypeForMultipleOpenFields(int position) {
         if (isFirstPosition(position)) {

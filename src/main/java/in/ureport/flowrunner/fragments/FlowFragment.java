@@ -254,8 +254,7 @@ public class FlowFragment extends Fragment implements QuestionAdapter.OnQuestion
         if (flowRuleset != null) {
             List<FlowRule> rules = flowRuleset.getRules();
             for (FlowRule flowRule : rules) {
-                if (!FlowRunnerManager.hasRecursiveDestination(flowDefinition, flowRuleset, flowRule)
-                && FlowRunnerManager.isWaitMessageRulesetType(flowRuleset)
+                if (FlowRunnerManager.isResponsableRule(flowDefinition, flowRuleset, flowRule)
                 && this.haveAnyReplyAction(flowRule.getDestination()))
                     return true;
             }

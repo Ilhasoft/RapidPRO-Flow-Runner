@@ -40,6 +40,16 @@ public class FlowRunnerManager {
         return DateFormat.getDateInstance();
     }
 
+    public static boolean isResponsableRule(FlowDefinition flowDefinition, FlowRuleset ruleSet, FlowRule rule) {
+        return !FlowRunnerManager.hasRecursiveDestination(flowDefinition, ruleSet, rule)
+                && FlowRunnerManager.isWaitMessageRulesetType(ruleSet) && !isNoResponseRule(rule);
+    }
+
+    private static boolean isNoResponseRule(FlowRule rule) {
+        return rule.getCategory() != null && rule.getCategory().containsKey("base")
+            && rule.getCategory().get("base").toLowerCase().equals("no response");
+    }
+
     public static boolean validateResponse(FlowDefinition flowDefinition, RulesetResponse response) {
         return validateResponseForRule(flowDefinition, response, response.getRule());
     }
