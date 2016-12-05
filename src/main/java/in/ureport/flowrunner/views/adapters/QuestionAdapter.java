@@ -8,6 +8,7 @@ import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,6 +72,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         if (viewType == TYPE_QUESTION) {
             AppCompatTextView textView = new AppCompatTextView(parent.getContext());
+            textView.setAutoLinkMask(Linkify.WEB_URLS);
             textView.setMovementMethod(LinkMovementMethod.getInstance());
             return new QuestionViewHolder(textView);
         } else if (viewType == TYPE_RESPOND) {
