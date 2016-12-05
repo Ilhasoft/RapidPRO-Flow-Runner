@@ -8,6 +8,7 @@ import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,6 +72,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         if (viewType == TYPE_QUESTION) {
             AppCompatTextView textView = new AppCompatTextView(parent.getContext());
+            textView.setAutoLinkMask(Linkify.WEB_URLS);
             textView.setMovementMethod(LinkMovementMethod.getInstance());
             return new QuestionViewHolder(textView);
         } else if (viewType == TYPE_RESPOND) {
@@ -130,13 +132,41 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public int getItemViewType(int position) {
         if (isItemType(position)) {
             FlowRule rule = ruleSet.getRules().get(position - 1);
-            if (FlowRunnerManager.hasRecursiveDestination(flowDefinition, ruleSet, rule))
+            if (!FlowRunnerManager.isResponsableRule(flowDefinition, ruleSet, rule)) {
                 return TYPE_HIDE;
-            return getTypeValidationByRule(rule).getType().ordinal();
+            } else if (isNumericMultipleOptions()) {
+                return getViewTypeForMultipleOpenFields(position);
+            } else {
+                return getTypeValidationByRule(rule).getType().ordinal();
+            }
         } else if (position == 0)
             return TYPE_QUESTION;
         else
             return TYPE_RESPOND;
+    }
+
+
+
+    private int getViewTypeForMultipleOpenFields(int position) {
+        if (isFirstPosition(position)) {
+            return Type.OpenField.ordinal();
+        } else {
+            return TYPE_HIDE;
+        }
+    }
+
+    private boolean isFirstPosition(int position) {
+        return position == 1;
+    }
+
+    private boolean isNumericMultipleOptions() {
+        int openFields = 0;
+        for (FlowRule flowRule : ruleSet.getRules()) {
+            if (getTypeValidationByRule(flowRule).getType() == Type.Number) {
+                openFields = openFields + 1;
+            }
+        }
+        return openFields > 1;
     }
 
     private boolean isItemType(int position) {
@@ -248,7 +278,14 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private boolean validateResponseAndSend() {
-        boolean isValidResponse = FlowRunnerManager.validateResponse(flowDefinition, response);
+        boolean isValidResponse;
+
+        if (isNumericMultipleOptions()) {
+            isValidResponse = isNumbersValid();
+        } else {
+            isValidResponse = FlowRunnerManager.validateResponse(flowDefinition, response);
+        }
+
         if (isValidResponse)
             onQuestionAnsweredListener.onQuestionAnswered(ruleSet, response);
         else {
@@ -256,6 +293,16 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             displayAlert(typeValidation.getMessage());
         }
         return isValidResponse;
+    }
+
+    private boolean isNumbersValid() {
+        for (FlowRule flowRule : ruleSet.getRules()) {
+            if (FlowRunnerManager.validateResponseForRule(flowDefinition, response, flowRule)) {
+                response.setRule(flowRule);
+                return true;
+            }
+        }
+        return false;
     }
 
     private void displayAlert(@StringRes int message) {

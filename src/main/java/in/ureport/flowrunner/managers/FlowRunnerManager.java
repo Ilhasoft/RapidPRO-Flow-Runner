@@ -20,6 +20,8 @@ import in.ureport.flowrunner.validations.ValidationFactory;
  */
 public class FlowRunnerManager {
 
+    public static final String RULESET_TYPE_WAIT_MESSAGE = "wait_message";
+
     public static int getInputTypeByType(Type type) {
         switch (type) {
             case Date:
@@ -38,9 +40,23 @@ public class FlowRunnerManager {
         return DateFormat.getDateInstance();
     }
 
+    public static boolean isResponsableRule(FlowDefinition flowDefinition, FlowRuleset ruleSet, FlowRule rule) {
+        return !FlowRunnerManager.hasRecursiveDestination(flowDefinition, ruleSet, rule)
+                && FlowRunnerManager.isWaitMessageRulesetType(ruleSet) && !isNoResponseRule(rule);
+    }
+
+    private static boolean isNoResponseRule(FlowRule rule) {
+        return rule.getCategory() != null && rule.getCategory().containsKey("base")
+            && rule.getCategory().get("base").toLowerCase().equals("no response");
+    }
+
     public static boolean validateResponse(FlowDefinition flowDefinition, RulesetResponse response) {
-        TypeValidation typeValidation = TypeValidation.getTypeValidationForRule(response.getRule());
-        return ValidationFactory.getInstance(typeValidation).validate(flowDefinition, response);
+        return validateResponseForRule(flowDefinition, response, response.getRule());
+    }
+
+    public static boolean validateResponseForRule(FlowDefinition flowDefinition, RulesetResponse response, FlowRule rule) {
+        TypeValidation typeValidation = TypeValidation.getTypeValidationForRule(rule);
+        return ValidationFactory.getInstance(typeValidation).validate(flowDefinition, response, rule);
     }
 
     public static boolean isFlowActive(FlowDefinition flowDefinition) {
@@ -71,6 +87,10 @@ public class FlowRunnerManager {
                 && actionSet.getDestination().equals(ruleSet.getUuid());
         }
         return false;
+    }
+
+    public static boolean isWaitMessageRulesetType(FlowRuleset ruleSet) {
+        return ruleSet.getRulesetType() != null && ruleSet.getRulesetType().equals(RULESET_TYPE_WAIT_MESSAGE);
     }
 
     public static FlowActionSet getFlowActionSetByUuid(FlowDefinition flowDefinition, String destination) {

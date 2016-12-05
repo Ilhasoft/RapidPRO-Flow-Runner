@@ -5,17 +5,18 @@ import java.util.Date;
 
 import in.ureport.flowrunner.managers.FlowRunnerManager;
 import in.ureport.flowrunner.models.FlowDefinition;
+import in.ureport.flowrunner.models.FlowRule;
 import in.ureport.flowrunner.models.RulesetResponse;
 
 /**
  * Created by johncordeiro on 15/10/15.
  */
-public class DateBeforeValidation extends DateValidation implements FlowRuleValidation {
+public class DateBeforeValidation extends DateValidation {
 
     @Override
-    public boolean validate(FlowDefinition flowDefinition, RulesetResponse response) {
+    public boolean validate(FlowDefinition flowDefinition, RulesetResponse response, FlowRule rule) {
         try {
-            Integer timeDelta = getTimeDeltaValue(response);
+            Integer timeDelta = getTimeDeltaValue(rule);
             Date deltaTime = getDeltaTime(timeDelta);
 
             Date date = FlowRunnerManager.getDefaultDateFormat().parse(response.getResponse());
