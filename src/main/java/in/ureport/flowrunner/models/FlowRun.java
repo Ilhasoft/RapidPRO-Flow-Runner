@@ -12,16 +12,11 @@ import java.util.Date;
  */
 public class FlowRun implements Parcelable {
 
-    @SerializedName("flow_uuid")
-    private String flowUuid;
+    private Flow flow;
 
-    private Integer flow;
+    private Contact contact;
 
-    private Integer run;
-
-    private String contact;
-
-    private Boolean completed;
+    private Boolean responded;
 
     @SerializedName("created_on")
     private Date createdOn;
@@ -35,44 +30,12 @@ public class FlowRun implements Parcelable {
     @SerializedName("expired_on")
     private Date expiredOn;
 
-    public String getFlowUuid() {
-        return flowUuid;
+    public Boolean getResponded() {
+        return responded;
     }
 
-    public void setFlowUuid(String flowUuid) {
-        this.flowUuid = flowUuid;
-    }
-
-    public Integer getFlow() {
-        return flow;
-    }
-
-    public void setFlow(Integer flow) {
-        this.flow = flow;
-    }
-
-    public Integer getRun() {
-        return run;
-    }
-
-    public void setRun(Integer run) {
-        this.run = run;
-    }
-
-    public String getContact() {
-        return contact;
-    }
-
-    public void setContact(String contact) {
-        this.contact = contact;
-    }
-
-    public Boolean getCompleted() {
-        return completed;
-    }
-
-    public void setCompleted(Boolean completed) {
-        this.completed = completed;
+    public void setResponded(Boolean responded) {
+        this.responded = responded;
     }
 
     public Date getCreatedOn() {
@@ -107,14 +70,30 @@ public class FlowRun implements Parcelable {
         this.expiredOn = expiredOn;
     }
 
+    public Flow getFlow() {
+        return flow;
+    }
+
+    public FlowRun setFlow(Flow flow) {
+        this.flow = flow;
+        return this;
+    }
+
+    public Contact getContact() {
+        return contact;
+    }
+
+    public FlowRun setContact(Contact contact) {
+        this.contact = contact;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "FlowRun{" +
-                "flowUuid='" + flowUuid + '\'' +
                 ", flow=" + flow +
-                ", run=" + run +
                 ", contact='" + contact + '\'' +
-                ", completed=" + completed +
+                ", responded=" + responded +
                 ", createdOn=" + createdOn +
                 ", modifiedOn=" + modifiedOn +
                 ", expiresOn=" + expiresOn +
@@ -128,26 +107,22 @@ public class FlowRun implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.flowUuid);
-        dest.writeValue(this.flow);
-        dest.writeValue(this.run);
-        dest.writeString(this.contact);
-        dest.writeValue(this.completed);
-        dest.writeLong(createdOn != null ? createdOn.getTime() : -1);
-        dest.writeLong(modifiedOn != null ? modifiedOn.getTime() : -1);
-        dest.writeLong(expiresOn != null ? expiresOn.getTime() : -1);
-        dest.writeLong(expiredOn != null ? expiredOn.getTime() : -1);
+        dest.writeParcelable(this.flow, flags);
+        dest.writeParcelable(this.contact, flags);
+        dest.writeValue(this.responded);
+        dest.writeLong(this.createdOn != null ? this.createdOn.getTime() : -1);
+        dest.writeLong(this.modifiedOn != null ? this.modifiedOn.getTime() : -1);
+        dest.writeLong(this.expiresOn != null ? this.expiresOn.getTime() : -1);
+        dest.writeLong(this.expiredOn != null ? this.expiredOn.getTime() : -1);
     }
 
     public FlowRun() {
     }
 
     protected FlowRun(Parcel in) {
-        this.flowUuid = in.readString();
-        this.flow = (Integer) in.readValue(Integer.class.getClassLoader());
-        this.run = (Integer) in.readValue(Integer.class.getClassLoader());
-        this.contact = in.readString();
-        this.completed = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        this.flow = in.readParcelable(Flow.class.getClassLoader());
+        this.contact = in.readParcelable(Contact.class.getClassLoader());
+        this.responded = (Boolean) in.readValue(Boolean.class.getClassLoader());
         long tmpCreatedOn = in.readLong();
         this.createdOn = tmpCreatedOn == -1 ? null : new Date(tmpCreatedOn);
         long tmpModifiedOn = in.readLong();
@@ -159,10 +134,12 @@ public class FlowRun implements Parcelable {
     }
 
     public static final Creator<FlowRun> CREATOR = new Creator<FlowRun>() {
+        @Override
         public FlowRun createFromParcel(Parcel source) {
             return new FlowRun(source);
         }
 
+        @Override
         public FlowRun[] newArray(int size) {
             return new FlowRun[size];
         }

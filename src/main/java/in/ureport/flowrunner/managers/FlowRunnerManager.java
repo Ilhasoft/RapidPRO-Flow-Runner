@@ -72,7 +72,7 @@ public class FlowRunnerManager {
 
     public static boolean isFlowCompleted(FlowDefinition flowDefinition) {
         FlowRun flowRun = flowDefinition.getFlowRun();
-        return flowRun != null && flowRun.getCompleted();
+        return flowRun != null && flowRun.getResponded();
     }
 
     public static boolean isLastActionSet(FlowActionSet flowActionSet) {
