@@ -24,11 +24,8 @@ public class FlowRun implements Parcelable {
     @SerializedName("modified_on")
     private Date modifiedOn;
 
-    @SerializedName("expires_on")
-    private Date expiresOn;
-
-    @SerializedName("expired_on")
-    private Date expiredOn;
+    @SerializedName("exit_type")
+    private String exitType;
 
     public Boolean getResponded() {
         return responded;
@@ -54,20 +51,12 @@ public class FlowRun implements Parcelable {
         this.modifiedOn = modifiedOn;
     }
 
-    public Date getExpiresOn() {
-        return expiresOn;
+    public String getExitType() {
+        return exitType;
     }
 
-    public void setExpiresOn(Date expiresOn) {
-        this.expiresOn = expiresOn;
-    }
-
-    public Date getExpiredOn() {
-        return expiredOn;
-    }
-
-    public void setExpiredOn(Date expiredOn) {
-        this.expiredOn = expiredOn;
+    public void setExitType(String exitType) {
+        this.exitType = exitType;
     }
 
     public Flow getFlow() {
@@ -96,7 +85,7 @@ public class FlowRun implements Parcelable {
                 ", responded=" + responded +
                 ", createdOn=" + createdOn +
                 ", modifiedOn=" + modifiedOn +
-                ", expiresOn=" + expiresOn +
+                ", expiresOn=" + exitType +
                 '}';
     }
 
@@ -112,8 +101,7 @@ public class FlowRun implements Parcelable {
         dest.writeValue(this.responded);
         dest.writeLong(this.createdOn != null ? this.createdOn.getTime() : -1);
         dest.writeLong(this.modifiedOn != null ? this.modifiedOn.getTime() : -1);
-        dest.writeLong(this.expiresOn != null ? this.expiresOn.getTime() : -1);
-        dest.writeLong(this.expiredOn != null ? this.expiredOn.getTime() : -1);
+        dest.writeString(this.exitType);
     }
 
     public FlowRun() {
@@ -128,9 +116,7 @@ public class FlowRun implements Parcelable {
         long tmpModifiedOn = in.readLong();
         this.modifiedOn = tmpModifiedOn == -1 ? null : new Date(tmpModifiedOn);
         long tmpExpiresOn = in.readLong();
-        this.expiresOn = tmpExpiresOn == -1 ? null : new Date(tmpExpiresOn);
-        long tmpExpiredOn = in.readLong();
-        this.expiredOn = tmpExpiredOn == -1 ? null : new Date(tmpExpiredOn);
+        this.exitType = in.readString();
     }
 
     public static final Creator<FlowRun> CREATOR = new Creator<FlowRun>() {
