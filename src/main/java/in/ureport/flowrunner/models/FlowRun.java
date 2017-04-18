@@ -115,7 +115,6 @@ public class FlowRun implements Parcelable {
         this.createdOn = tmpCreatedOn == -1 ? null : new Date(tmpCreatedOn);
         long tmpModifiedOn = in.readLong();
         this.modifiedOn = tmpModifiedOn == -1 ? null : new Date(tmpModifiedOn);
-        long tmpExpiresOn = in.readLong();
         this.exitType = in.readString();
     }
 
